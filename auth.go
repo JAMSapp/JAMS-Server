@@ -5,6 +5,12 @@ import (
 )
 
 func apiAuthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Allow", "POST")
-	http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	if r.Method != "POST" {
+		w.Header().Add("Allow", "POST")
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return
 }
