@@ -11,15 +11,21 @@ const version = "0.0.1"
 func main() {
 	fmt.Println("JAMA Server version ", version)
 	fmt.Println("[*] Starting server...")
+
+	StartServer()
+}
+
+func StartServer() {
 	http.HandleFunc("/", HomeHandler)            // Return index.html
 	http.HandleFunc("/favicon.ico", iconHandler) // Return favicon
 
-	http.HandleFunc("/api/", apiHandler)         // Return API reference
-	http.HandleFunc("/api/user", apiHandler)     // Handle all user API requests
-	http.HandleFunc("/api/message", apiHandler)  // Handle all message API requests
-	http.HandleFunc("/api/auth", apiAuthHandler) // Handle all auth API requests
+	http.HandleFunc("/api/", apiHandler)               // Return API reference
+	http.HandleFunc("/api/user", apiUserHandler)       // Handle all user API requests
+	http.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
+	http.HandleFunc("/api/auth", apiAuthHandler)       // Handle all auth API requests
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
+	return
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
