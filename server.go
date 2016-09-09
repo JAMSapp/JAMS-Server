@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/boltdb/bolt"
 	"log"
 	"net/http"
+	"os"
+	"time"
 )
 
 const version = "0.0.1"
@@ -16,6 +19,14 @@ func main() {
 }
 
 func StartServer() {
+	fmt.Println("[+] Loading BoltDB")
+	_, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	if err != nil {
+		fmt.Println("[!] Error opening BoltDB database file")
+		os.Exit(1)
+	}
+	fmt.Println("[+] BoltDB loaded")
+
 	http.HandleFunc("/", HomeHandler)            // Return index.html
 	http.HandleFunc("/favicon.ico", iconHandler) // Return favicon
 
