@@ -11,6 +11,8 @@ import (
 
 const version = "0.0.1"
 
+var db *bolt.DB
+
 func main() {
 	fmt.Println("JAMA Server version ", version)
 	fmt.Println("[*] Starting server...")
@@ -20,11 +22,12 @@ func main() {
 
 func StartServer() {
 	fmt.Println("[+] Loading BoltDB")
-	_, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	d, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		fmt.Println("[!] Error opening BoltDB database file")
 		os.Exit(1)
 	}
+	db = d
 	fmt.Println("[+] BoltDB loaded")
 
 	http.HandleFunc("/", HomeHandler)            // Return index.html
