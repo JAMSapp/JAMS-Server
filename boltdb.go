@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/boltdb/bolt"
+	"strconv"
 )
 
 type BoltDB struct {
@@ -28,7 +29,8 @@ func (db BoltDB) SaveUser(user *User) error {
 		if err != nil {
 			return err
 		}
-		return b.Put([]byte(user.Username), encoded)
+		id := strconv.Itoa(user.Id)
+		return b.Put([]byte(id), encoded)
 	})
 	return err
 }
