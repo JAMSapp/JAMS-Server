@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestMarshal(t *testing.T) {
+func TestMarshalUser(t *testing.T) {
 	user := &User{
 		Id:       123,
 		Username: "farts",
@@ -14,21 +14,27 @@ func TestMarshal(t *testing.T) {
 	return
 }
 
-func TestSaveUser(t *testing.T) {
+func TestSave(t *testing.T) {
 	user := &User{
 		Id:       123,
 		Username: "farts",
 		Password: "farts",
 	}
-
-	db, err := BoltDBOpen()
+	db, err := BoltDBOpen("my.db")
 	if err != nil {
 		t.Errorf(err.Error())
 		return
 	}
-	err = db.SaveUser(user)
+	defer db.Conn.Close()
+
+	err = user.Save(db)
 	if err != nil {
 		t.Errorf(err.Error())
+		return
+	}
+	err = user.Save(nil)
+	if err == nil {
+		t.Errorf("expected error on saving against nil dbconn")
 	}
 	return
 }

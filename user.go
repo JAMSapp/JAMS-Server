@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,6 +15,9 @@ type User struct {
 }
 
 func (user *User) Save(db DBConn) error {
+	if db == nil {
+		return errors.New("user: DBConn is nil")
+	}
 	return db.SaveUser(user)
 }
 

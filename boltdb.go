@@ -3,14 +3,15 @@ package main
 import (
 	"github.com/boltdb/bolt"
 	"strconv"
+	"time"
 )
 
 type BoltDB struct {
 	Conn *bolt.DB
 }
 
-func BoltDBOpen() (BoltDB, error) {
-	db, err := bolt.Open("my.db", 0600, nil)
+func BoltDBOpen(filename string) (BoltDB, error) {
+	db, err := bolt.Open(filename, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {
 		return BoltDB{}, err
 	}
