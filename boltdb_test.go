@@ -4,6 +4,10 @@ import (
 	"testing"
 )
 
+const ID = 123
+const USER = "test1"
+const PASS = "hunter2"
+
 func TestBoltDBOpen(t *testing.T) {
 	db, err := BoltDBOpen("my.db")
 	if err != nil {
@@ -19,11 +23,11 @@ func TestBoltDBOpen(t *testing.T) {
 	}
 }
 
-func TestSaveUser(t *testing.T) {
+func TestUserLifecycle(t *testing.T) {
 	user := &User{
-		Id:       123,
-		Username: "farts",
-		Password: "farts",
+		Id:       ID,
+		Username: USER,
+		Password: PASS,
 	}
 
 	db, err := BoltDBOpen("my.db")
@@ -37,5 +41,20 @@ func TestSaveUser(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+
+	u2, err := db.GetUserById(123)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if u2.Id != ID {
+		t.Errorf("Id of retrieved user does not match stored user")
+	}
+	if u2.Username != USER {
+		t.Errorf("Username of retrieved user does not match stored user")
+	}
+	if u2.Password != PASS {
+		t.Errorf("Password of retrieved user does not match stored user")
+	}
+
 	return
 }
