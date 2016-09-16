@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -28,13 +29,19 @@ func StartServer() {
 	db = boltdb
 	fmt.Println("[+] BoltDB loaded")
 
-	http.HandleFunc("/", HomeHandler)            // Return index.html
-	http.HandleFunc("/favicon.ico", iconHandler) // Return favicon
+	r := mux.NewRouter()
 
-	http.HandleFunc("/api/", apiHandler)               // Return API reference
-	http.HandleFunc("/api/user", apiUserHandler)       // Handle all user API requests
-	http.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
-	http.HandleFunc("/api/auth", apiAuthHandler)       // Handle all auth API requests
+	r.HandleFunc("/", HomeHandler)            // Return index.html
+	r.HandleFunc("/favicon.ico", iconHandler) // Return favicon
+
+	r.HandleFunc("/api/", apiHandler) // Return API reference
+	r.HandleFunc("/api/user/{id}", apiUserGetHandler).Methods("GET")
+
+	r.HandleFunc("/api/user", apiUserHandler)       // Handle all user API requests
+	r.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
+	r.HandleFunc("/api/auth", apiAuthHandler)       // Handle all auth API requests
+
+	http.Handle("/", r)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 	return

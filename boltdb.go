@@ -34,6 +34,9 @@ func (db BoltDB) GetUserById(id int) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(buf) == 0 {
+		return nil, ErrUserNotFound
+	}
 
 	user, err := UnmarshalUser(buf)
 	return user, err
