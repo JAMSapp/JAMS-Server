@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/boltdb/bolt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 )
 
 const version = "0.0.1"
 
-var db *bolt.DB
+var db DBConn
 
 func main() {
 	fmt.Println("JAMA Server version ", version)
@@ -22,12 +20,12 @@ func main() {
 
 func StartServer() {
 	fmt.Println("[+] Loading BoltDB")
-	d, err := bolt.Open("my.db", 0600, &bolt.Options{Timeout: 1 * time.Second})
+	boltdb, err := BoltDBOpen("my.db")
 	if err != nil {
-		fmt.Println("[!] Error opening BoltDB database file")
+		fmt.Printf("[!] Error opening BoltDB: %s\n", err.Error())
 		os.Exit(1)
 	}
-	db = d
+	db = boltdb
 	fmt.Println("[+] BoltDB loaded")
 
 	http.HandleFunc("/", HomeHandler)            // Return index.html
