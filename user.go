@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrUserNotFound = errors.New("user: user not found")
+	ErrUserNotFound = errors.New("api: user not found")
 )
 
 type User struct {
