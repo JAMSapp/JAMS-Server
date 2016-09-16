@@ -37,9 +37,9 @@ func StartServer() {
 	r.HandleFunc("/api/", apiHandler) // Return API reference
 	r.HandleFunc("/api/user/{id}", apiUserGetHandler).Methods("GET")
 
-	r.HandleFunc("/api/user", apiUserHandler)       // Handle all user API requests
-	r.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
-	r.HandleFunc("/api/auth", apiAuthHandler)       // Handle all auth API requests
+	r.HandleFunc("/api/user", apiUserPutHandler).Methods("PUT") // Handle all user API requests
+	r.HandleFunc("/api/message", apiMessageHandler)             // Handle all message API requests
+	r.HandleFunc("/api/auth", apiAuthHandler)                   // Handle all auth API requests
 
 	http.Handle("/", r)
 

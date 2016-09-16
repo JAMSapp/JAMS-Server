@@ -58,3 +58,13 @@ func TestUserLifecycle(t *testing.T) {
 
 	return
 }
+
+func TestMarshalUser(t *testing.T) {
+	user := &User{
+		Id:       123,
+		Username: "farts",
+		Password: "farts",
+	}
+	t.Logf("%s", MarshalUser(user))
+	return
+}
