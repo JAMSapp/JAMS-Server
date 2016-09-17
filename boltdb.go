@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/boltdb/bolt"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/boltdb/bolt"
 )
 
 type BoltDB struct {
