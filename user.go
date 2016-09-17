@@ -6,3 +6,7 @@ type User struct {
 	Username string
 	Password string
 }
+
+func (u *User) Save() error {
+	return db.SaveUser(u)
+}
