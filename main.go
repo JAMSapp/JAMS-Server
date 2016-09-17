@@ -20,7 +20,7 @@ func main() {
 
 func StartServer() {
 	fmt.Println("[+] Loading BoltDB")
-	boltdb, err := BoltDBOpen("my.db")
+	boltdb, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		fmt.Printf("[!] Error opening BoltDB: %s\n", err.Error())
 		os.Exit(1)

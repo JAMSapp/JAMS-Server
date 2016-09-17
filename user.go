@@ -10,3 +10,7 @@ type User struct {
 func (u *User) Save() error {
 	return db.SaveUser(u)
 }
+
+func (u *User) Delete() error {
+	return db.DeleteUser(u)
+}

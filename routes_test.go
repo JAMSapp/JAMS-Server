@@ -27,7 +27,7 @@ func TestServer(t *testing.T) {
 	}
 
 	r = Put("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
-	if r != 201 {
+	if r != 201 && r != 409 {
 		t.Errorf("PUT /api/user did not return 201, instead returned %d\n", r)
 	}
 

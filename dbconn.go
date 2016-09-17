@@ -7,5 +7,6 @@ const (
 
 type DBConn interface {
 	SaveUser(u *User) error
+	DeleteUser(u *User) error
 	GetUserById(id int) (*User, error)
 }

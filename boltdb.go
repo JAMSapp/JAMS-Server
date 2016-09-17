@@ -10,6 +10,8 @@ import (
 	"github.com/boltdb/bolt"
 )
 
+const DBFILE = "my.db"
+
 type BoltDB struct {
 	Conn *bolt.DB
 }
@@ -56,6 +58,20 @@ func (db BoltDB) SaveUser(user *User) error {
 		}
 		id := strconv.Itoa(user.Id)
 		return b.Put([]byte(id), encoded)
+	})
+	return err
+}
+
+// Delete a user from the database based on Id.
+func (db BoltDB) DeleteUser(user *User) error {
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(USERS))
+		if err != nil {
+			return err
+		}
+
+		id := strconv.Itoa(user.Id)
+		return b.Delete([]byte(id))
 	})
 	return err
 }

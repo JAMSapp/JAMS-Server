@@ -9,7 +9,7 @@ const USER = "test1"
 const PASS = "hunter2"
 
 func TestBoltDBOpen(t *testing.T) {
-	db, err := BoltDBOpen("my.db")
+	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		t.Errorf(err.Error())
 		return
@@ -17,7 +17,7 @@ func TestBoltDBOpen(t *testing.T) {
 	defer db.Conn.Close()
 
 	// Try and open another.
-	_, err = BoltDBOpen("my.db")
+	_, err = BoltDBOpen(DBFILE)
 	if err == nil {
 		t.Errorf("boltdb: error expected with opening dir")
 	}
@@ -30,7 +30,7 @@ func TestUserLifecycle(t *testing.T) {
 		Password: PASS,
 	}
 
-	db, err := BoltDBOpen("my.db")
+	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		t.Errorf(err.Error())
 		return
@@ -42,18 +42,35 @@ func TestUserLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	u2, err := db.GetUserById(123)
+	user, err = db.GetUserById(ID)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	if u2.Id != ID {
+	if user == nil {
+		t.Errorf("User should not be nil.")
+		return
+	}
+	if user.Id != ID {
 		t.Errorf("Id of retrieved user does not match stored user")
 	}
-	if u2.Username != USER {
+	if user.Username != USER {
 		t.Errorf("Username of retrieved user does not match stored user")
 	}
-	if u2.Password != PASS {
+	if user.Password != PASS {
 		t.Errorf("Password of retrieved user does not match stored user")
+	}
+
+	err = db.DeleteUser(user)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	user, err = db.GetUserById(ID)
+	if err != ErrUserNotFound {
+		t.Errorf("Found deleted user")
+	}
+	if user != nil {
+		t.Errorf("GetUserById should have returned nill")
 	}
 
 	return
