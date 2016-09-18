@@ -10,27 +10,36 @@ import (
 
 // TODO: factor out magic numbers and strings
 
-func TestServer(t *testing.T) {
+func TestRoutes(t *testing.T) {
 	go StartServer()
 	time.Sleep(100 * time.Millisecond)
-	r := Get("/api/auth", t)
-	if r != 405 {
-		t.Errorf("GET /api/auth did not return 405, instead returned %d\n", r)
-	}
 
-	r = Get("/api/user", t)
-	if r != 404 {
-		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
-	}
+	testMessage(t)
+	testUser(t)
+	testAuth(t)
+}
 
-	r = Get("/api/message", t)
+func testMessage(t *testing.T) {
+	r := Get("/api/message", t)
 	if r != 200 {
 		t.Errorf("GET /api/message did not return 200, instead returned %d\n", r)
 	}
+}
 
-	r = Put("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
+func testUser(t *testing.T) {
+	r := Get("/api/user", t)
+	if r != 200 {
+		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
+	}
+
+	r = Post("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
 	if r != 201 && r != 409 {
-		t.Errorf("PUT /api/user did not return 201, instead returned %d\n", r)
+		t.Errorf("POST /api/user did not return 201, instead returned %d\n", r)
+	}
+
+	r = Get("/api/user/123", t)
+	if r != 200 {
+		t.Errorf("GET /api/user/123 did not return 200, instead returned %d\n", r)
 	}
 
 	r = Delete("/api/user/123", t)
@@ -40,7 +49,13 @@ func TestServer(t *testing.T) {
 		}
 		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
 	}
+}
 
+func testAuth(t *testing.T) {
+	r := Get("/api/auth", t)
+	if r != 405 {
+		t.Errorf("GET /api/auth did not return 405, instead returned %d\n", r)
+	}
 }
 
 func Get(path string, t *testing.T) int {

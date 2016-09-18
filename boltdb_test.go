@@ -60,6 +60,12 @@ func TestUserLifecycle(t *testing.T) {
 		t.Errorf("Password of retrieved user does not match stored user")
 	}
 
+	// TODO: Check the users result.
+	_, err = db.GetUsers()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	err = db.DeleteUser(user)
 	if err != nil {
 		t.Errorf(err.Error())

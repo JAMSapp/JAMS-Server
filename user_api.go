@@ -20,6 +20,17 @@ var (
 func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sid := vars["id"]
+	// TODO: Factor out get all users
+	if sid == "" {
+		users, err := db.GetUsers()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+		w.Header().Add("Content-Type", "application/json")
+		buf, err := json.Marshal(users)
+		fmt.Fprintf(w, "%s", string(buf))
+		return
+	}
 	id, err := strconv.Atoi(sid)
 	if err != nil {
 		// If it doesn't parse to an int, there will be no associated user.
@@ -38,7 +49,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<h1>Id: %d</h1><div>Username: %s</br>Password: %s</div>", u.Id, u.Username, u.Password)
 }
 
-func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
+func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	content := r.Header.Get("Content-Type")
 	if content != "application/json" {
 		http.Error(w, ErrUnsupportedMediaType.Error(), http.StatusUnsupportedMediaType)

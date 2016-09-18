@@ -45,6 +45,26 @@ func (db BoltDB) GetUserById(id int) (*User, error) {
 	return user, err
 }
 
+func (db BoltDB) GetUsers() ([]User, error) {
+	users := make([]User, 0)
+	err := db.Conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(USERS))
+		return b.ForEach(func(k, v []byte) error {
+			u, err := UnmarshalUser(v)
+			if err != nil {
+				return err
+			}
+			users = append(users, *u)
+			return nil
+		})
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
+}
+
 func (db BoltDB) SaveUser(user *User) error {
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(USERS))

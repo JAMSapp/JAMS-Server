@@ -21,7 +21,8 @@ func routes() *mux.Router {
 	// /user
 	r.HandleFunc("/api/user/{id}", apiUserGetHandler).Methods("GET")       // Get a user
 	r.HandleFunc("/api/user/{id}", apiUserDeleteHandler).Methods("DELETE") // Delete a user
-	r.HandleFunc("/api/user", apiUserPutHandler).Methods("PUT")            // Create a new user
+	r.HandleFunc("/api/user", apiUserPostHandler).Methods("POST")          // Create a new user
+	r.HandleFunc("/api/user", apiUserGetHandler).Methods("GET")            // Get all users
 
 	// /message
 	r.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
