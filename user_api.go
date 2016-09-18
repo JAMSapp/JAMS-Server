@@ -79,7 +79,38 @@ func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	sid := vars["id"]
+	id, err := strconv.Atoi(sid)
+	if err != nil {
+		// If it doesn't parse to an int, there will be no associated user.
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	u, err := db.GetUserById(id)
+	if err != nil {
+		if err == ErrUserNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Possible for user to be deleted between these, though highly unlikely.
+	err = u.Delete()
+	if err != nil {
+		if err == ErrUserNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func apiUserHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusNoContent)
 	return
 }

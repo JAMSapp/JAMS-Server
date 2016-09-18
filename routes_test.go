@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// TODO: factor out magic numbers and strings
+
 func TestServer(t *testing.T) {
 	go StartServer()
 	time.Sleep(100 * time.Millisecond)
@@ -29,6 +31,14 @@ func TestServer(t *testing.T) {
 	r = Put("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
 	if r != 201 && r != 409 {
 		t.Errorf("PUT /api/user did not return 201, instead returned %d\n", r)
+	}
+
+	r = Delete("/api/user/123", t)
+	if r != 204 {
+		if r == 404 {
+			t.Errorf("DELETE on user not found\n")
+		}
+		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
 	}
 
 }
@@ -78,5 +88,24 @@ func Put(path, body string, t *testing.T) int {
 	defer res.Body.Close()
 
 	fmt.Printf("PUT %s: %d\n", path, res.StatusCode)
+	return res.StatusCode
+}
+
+func Delete(path string, t *testing.T) int {
+	del_url := fmt.Sprintf("http://127.0.0.1:8080%s", path)
+	req, err := http.NewRequest("DELETE", del_url, strings.NewReader(""))
+	if err != nil {
+		t.Errorf(err.Error())
+		return 0
+	}
+
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Errorf(err.Error())
+		return 0
+	}
+	defer res.Body.Close()
+
+	fmt.Printf("DELETE %s: %d\n", path, res.StatusCode)
 	return res.StatusCode
 }
