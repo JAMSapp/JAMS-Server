@@ -20,9 +20,15 @@ func TestRoutes(t *testing.T) {
 }
 
 func testMessage(t *testing.T) {
+	// TODO: Decide on proper response and functionality for GET /api/message
 	r := Get("/api/message", t)
 	if r != 200 {
 		t.Errorf("GET /api/message did not return 200, instead returned %d\n", r)
+	}
+
+	r := Post("/api/message", "{\"body\": \"This is the body of the first message.\"}", t)
+	if r != 201 {
+		t.Errorf("POST /api/message did not return 201, instead returned %d\n", r)
 	}
 }
 
