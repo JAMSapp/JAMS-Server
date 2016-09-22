@@ -32,6 +32,16 @@ func testUser(t *testing.T) {
 		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
 	}
 
+	r = Put("/api/user/321", "{\"id\": 321, \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
+	if r != 201 {
+		t.Errorf("PUT /api/user/321 did not return 201, instead returned %d\n", r)
+	}
+
+	r = Get("/api/user/321", t)
+	if r != 200 {
+		t.Errorf("GET /api/user/321 did not return 200, instead returned %d\n", r)
+	}
+
 	r = Post("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
 	if r != 201 && r != 409 {
 		t.Errorf("POST /api/user did not return 201, instead returned %d\n", r)
@@ -40,6 +50,11 @@ func testUser(t *testing.T) {
 	r = Get("/api/user/123", t)
 	if r != 200 {
 		t.Errorf("GET /api/user/123 did not return 200, instead returned %d\n", r)
+	}
+
+	r = Put("/api/user/123", "{\"id\": 123, \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
+	if r != 200 {
+		t.Errorf("PUT /api/user/123 did not return 200, instead returned %d\n", r)
 	}
 
 	r = Delete("/api/user/123", t)

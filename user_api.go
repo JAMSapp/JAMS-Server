@@ -90,6 +90,47 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// PUT /api/user/{id} - Update a user's record or create one if it doesn't exist
+func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
+	content := r.Header.Get("Content-Type")
+	if content != "application/json" {
+		http.Error(w, ErrUnsupportedMediaType.Error(), http.StatusUnsupportedMediaType)
+		return
+	}
+
+	var user User
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Check if a user exists.
+	_, err = db.GetUserById(user.Id)
+	if err != ErrUserNotFound {
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	} else {
+		w.WriteHeader(http.StatusCreated)
+	}
+
+	err = db.SaveUser(&user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	return
+}
+
 func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	sid := vars["id"]
