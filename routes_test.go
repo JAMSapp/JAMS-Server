@@ -117,6 +117,7 @@ func testAuth(t *testing.T) {
 	}
 }
 
+// Make a GET request to the specified path.
 func Get(path string, t *testing.T) int {
 	get_url := fmt.Sprintf("http://127.0.0.1:8080%s", path)
 	res, err := http.Get(get_url)
@@ -130,6 +131,7 @@ func Get(path string, t *testing.T) int {
 	return res.StatusCode
 }
 
+// Make a POST request to the specified path and with the given JSON body.
 func Post(path, body string, t *testing.T) int {
 	post_url := fmt.Sprintf("http://127.0.0.1:8080%s", path)
 	bodyType := "application/json"
@@ -144,6 +146,7 @@ func Post(path, body string, t *testing.T) int {
 	return res.StatusCode
 }
 
+// Make a PUT request to the specified path with the given JSON body
 func Put(path, body string, t *testing.T) int {
 	put_url := fmt.Sprintf("http://127.0.0.1:8080%s", path)
 	bodyType := "application/json"
@@ -153,6 +156,7 @@ func Put(path, body string, t *testing.T) int {
 		return 0
 	}
 
+	// Add a header for JSON content type
 	req.Header.Add("Content-Type", bodyType)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -165,6 +169,7 @@ func Put(path, body string, t *testing.T) int {
 	return res.StatusCode
 }
 
+// Make a DELETE request to the given path.
 func Delete(path string, t *testing.T) int {
 	del_url := fmt.Sprintf("http://127.0.0.1:8080%s", path)
 	req, err := http.NewRequest("DELETE", del_url, strings.NewReader(""))
