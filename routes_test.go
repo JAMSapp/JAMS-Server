@@ -26,7 +26,7 @@ func testMessage(t *testing.T) {
 		t.Errorf("GET /api/message did not return 200, instead returned %d\n", r)
 	}
 
-	r := Post("/api/message", "{\"body\": \"This is the body of the first message.\"}", t)
+	r = Post("/api/message", "{\"body\": \"This is the body of the first message.\"}", t)
 	if r != 201 {
 		t.Errorf("POST /api/message did not return 201, instead returned %d\n", r)
 	}
@@ -65,10 +65,17 @@ func testUser(t *testing.T) {
 
 	r = Delete("/api/user/123", t)
 	if r != 204 {
-		if r == 404 {
-			t.Errorf("DELETE on user not found\n")
-		}
 		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
+	}
+
+	r = Delete("/api/user/321", t)
+	if r != 204 {
+		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
+	}
+	// Test delete on non existant user
+	r = Delete("/api/user/1337", t)
+	if r != 404 {
+		t.Errorf("DELETE on user not found\n")
 	}
 }
 

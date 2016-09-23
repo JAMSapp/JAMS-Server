@@ -26,7 +26,8 @@ func routes() *mux.Router {
 	r.HandleFunc("/api/user", apiUserGetHandler).Methods("GET")            // Get all users
 
 	// /message
-	r.HandleFunc("/api/message", apiMessageHandler) // Handle all message API requests
+	r.HandleFunc("/api/message", apiMessageHandler).Methods("GET")      // TODO: Not supported
+	r.HandleFunc("/api/message", apiMessagePostHandler).Methods("POST") // Create a message
 
 	// /auth
 	r.HandleFunc("/api/auth", apiAuthHandler) // Handle all auth API requests

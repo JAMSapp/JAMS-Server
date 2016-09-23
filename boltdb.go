@@ -65,6 +65,31 @@ func (db BoltDB) GetUsers() ([]User, error) {
 	return users, nil
 }
 
+func (db BoltDB) SaveMessage(mes *Message) error {
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(MESSAGES))
+		if err != nil {
+			return err
+		}
+
+		return b.Put(mes.Id, []byte(mes.Body))
+	})
+	return err
+}
+
+// Delete a message from the database based on Id.
+func (db BoltDB) DeleteMessage(mes *Message) error {
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(MESSAGES))
+		if err != nil {
+			return err
+		}
+
+		return b.Delete(mes.Id)
+	})
+	return err
+}
+
 func (db BoltDB) SaveUser(user *User) error {
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(USERS))

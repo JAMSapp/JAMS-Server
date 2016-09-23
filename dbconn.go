@@ -10,4 +10,6 @@ type DBConn interface {
 	DeleteUser(u *User) error
 	GetUserById(id int) (*User, error)
 	GetUsers() ([]User, error)
+	SaveMessage(m *Message) error
+	DeleteMessage(m *Message) error
 }
