@@ -2,6 +2,8 @@ package main
 
 import (
 	"testing"
+
+	"github.com/twinj/uuid"
 )
 
 const ID = 123
@@ -20,6 +22,29 @@ func TestBoltDBOpen(t *testing.T) {
 	_, err = BoltDBOpen(DBFILE)
 	if err == nil {
 		t.Errorf("boltdb: error expected with opening dir")
+	}
+}
+
+func TestMessageLifecycle(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	// TODO: Create some sort of init function to handle the calling of any
+	// necessary init requirements throughout server.
+	uuid.Init() // Must init before V1 uuids.
+	mes := NewMessage("test message body")
+	err = db.SaveMessage(mes)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	err = db.DeleteMessage(mes)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
 }
 
