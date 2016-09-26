@@ -14,6 +14,8 @@ type Message struct {
 	Body string
 }
 
+// NewMessage takes a string and returns a new Message with a unique Id. Message
+// must be saved for persistence.
 func NewMessage(body string) *Message {
 	return &Message{Id: uuid.NewV1(), Body: body}
 }
