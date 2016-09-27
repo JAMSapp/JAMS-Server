@@ -30,7 +30,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", string(buf))
 		return
 	}
-	u, err := db.GetUserById(id)
+	user, err := db.GetUserById(id)
 	if err != nil {
 		if err == ErrUserNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -39,22 +39,32 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "<h1>Id: %s</h1><div>Username: %s</br>Password: %s</div>", u.Id, u.Username, u.Password)
+	buf, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Return the user as a JSON object and 200 OK.
+	fmt.Fprintf(w, "%s", string(buf))
 }
 
+// Handle POST requests at the /api/user URL.
 func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
+	// Require JSON content type.
 	content := r.Header.Get("Content-Type")
 	if content != "application/json" {
 		http.Error(w, ErrUnsupportedMediaType.Error(), http.StatusUnsupportedMediaType)
 		return
 	}
 
+	// Read the request body.
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Create a temp User to unmarshal
 	var temp User
 	err = json.Unmarshal(body, &temp)
 	if err != nil {
@@ -62,6 +72,7 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create a new user with a randomly generated ID.
 	user := NewUser(temp.Username, temp.Password)
 
 	// Double check that a user doesn't already exist.
@@ -82,12 +93,14 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Marshal newly created user into JSON for response
 	buf, err := json.Marshal(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Make sure we return 201 Created
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "%s", string(buf))
 	return
