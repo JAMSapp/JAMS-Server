@@ -72,7 +72,7 @@ func testUser(t *testing.T) {
 	// Create a new user
 	// TODO: Remove id from this and generate a unique one automatically.
 	// Should return 201 for created or 409 for conflict.
-	r = Post("/api/user", "{\"id\": \""+id2.String()+"\", \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
+	r = Post("/api/user", "{\"username\":\"asdf\", \"password\": \"fdsa\"}", t)
 	if r != 201 && r != 409 {
 		t.Errorf("POST /api/user did not return 201, instead returned %d\n", r)
 	}

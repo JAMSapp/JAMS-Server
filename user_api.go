@@ -81,14 +81,15 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	buf, err := json.Marshal(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, "%s", string(buf))
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", string(buf))
 	return
 }
 
