@@ -42,6 +42,13 @@ func TestBoltMessageLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	user := &User{Id: ID, Username: USER, Password: PASS}
+
+	err = db.AddUnreadMessage(user, mes)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
 	err = db.DeleteMessage(mes)
 	if err != nil {
 		t.Errorf(err.Error())

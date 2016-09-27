@@ -49,18 +49,20 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = json.Unmarshal(body, &user)
+	var temp User
+	err = json.Unmarshal(body, &temp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	user := NewUser(temp.Username, temp.Password)
 
 	// Double check that a user doesn't already exist.
 	_, err = db.GetUserById(user.Id)
@@ -74,11 +76,18 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Make a new call for saving a New user to avoid the above check.
-	err = db.SaveUser(&user)
+	err = db.SaveUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	buf, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "%s", string(buf))
 	w.WriteHeader(http.StatusCreated)
 	return
 }

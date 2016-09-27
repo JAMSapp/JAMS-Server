@@ -10,14 +10,14 @@ import (
 // UUID based on a timestamp to keep it sequential (CSPRNG not needed for
 // message IDs.
 type Message struct {
-	Id   uuid.Uuid `json:"-"` // We don't want people submitting their own Id.
+	Id   string `json:"-"` // We don't want people submitting their own Id.
 	Body string
 }
 
 // NewMessage takes a string and returns a new Message with a unique Id. Message
 // must be saved for persistence.
 func NewMessage(body string) *Message {
-	return &Message{Id: uuid.NewV1(), Body: body}
+	return &Message{Id: uuid.NewV1().String(), Body: body}
 }
 
 // Save will store the message in the database and will return an error in case

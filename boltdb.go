@@ -70,7 +70,7 @@ func (db BoltDB) SaveMessage(mes *Message) error {
 			return err
 		}
 
-		return b.Put(mes.Id, []byte(mes.Body))
+		return b.Put([]byte(mes.Id), []byte(mes.Body))
 	})
 	return err
 }
@@ -83,7 +83,7 @@ func (db BoltDB) DeleteMessage(mes *Message) error {
 			return err
 		}
 
-		return b.Delete(mes.Id)
+		return b.Delete([]byte(mes.Id))
 	})
 	return err
 }
@@ -117,7 +117,8 @@ func (db BoltDB) DeleteUser(user *User) error {
 	return err
 }
 
-// Delete a user from the database based on Id.
+// Adds a new message to the UNREAD queue of a user. Message must be saved prior
+// otherwise it will not exist in the database.
 func (db BoltDB) AddUnreadMessage(user *User, mes *Message) error {
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(UNREAD))
@@ -125,7 +126,7 @@ func (db BoltDB) AddUnreadMessage(user *User, mes *Message) error {
 			return err
 		}
 
-		return b.Put([]byte(user.Id), mes.Id)
+		return b.Put([]byte(user.Id), []byte(mes.Id))
 	})
 	return err
 }

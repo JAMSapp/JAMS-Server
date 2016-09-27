@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestLifecycle(t *testing.T) {
+func TestUserLifecycle(t *testing.T) {
 	user := &User{Id: "asdf", Username: "user", Password: "hunter2"}
 	if err := user.Save(); err != nil {
 		t.Errorf(err.Error())
