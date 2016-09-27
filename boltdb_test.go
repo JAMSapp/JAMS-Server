@@ -6,9 +6,9 @@ import (
 	"github.com/twinj/uuid"
 )
 
-const ID = 123
-const USER = "test1"
-const PASS = "hunter2"
+var ID = uuid.NewV1().String()
+var USER = "test1"
+var PASS = "hunter2"
 
 func TestBoltDBOpen(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
@@ -25,7 +25,7 @@ func TestBoltDBOpen(t *testing.T) {
 	}
 }
 
-func TestMessageLifecycle(t *testing.T) {
+func TestBoltMessageLifecycle(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -48,7 +48,7 @@ func TestMessageLifecycle(t *testing.T) {
 	}
 }
 
-func TestUserLifecycle(t *testing.T) {
+func TestBoltUserLifecycle(t *testing.T) {
 	user := &User{
 		Id:       ID,
 		Username: USER,
@@ -75,7 +75,7 @@ func TestUserLifecycle(t *testing.T) {
 		t.Errorf("User should not be nil.")
 		return
 	}
-	if user.Id != ID {
+	if user.Id == ID {
 		t.Errorf("Id of retrieved user does not match stored user")
 	}
 	if user.Username != USER {
@@ -107,11 +107,45 @@ func TestUserLifecycle(t *testing.T) {
 	return
 }
 
-func TestMarshalUser(t *testing.T) {
+func TestBoltMessageSend(t *testing.T) {
 	user := &User{
-		Id:       123,
-		Username: "farts",
-		Password: "farts",
+		Id:       ID,
+		Username: USER,
+		Password: PASS,
+	}
+
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	err = db.SaveUser(user)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// TODO: Create some sort of init function to handle the calling of any
+	// necessary init requirements throughout server.
+	//uuid.Init() // Must init before V1 uuids.
+	mes := NewMessage("test message body")
+	err = db.SaveMessage(mes)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	err = db.AddUnreadMessage(user, mes)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+}
+
+func TestBoltMarshalUser(t *testing.T) {
+	user := &User{
+		Id:       ID,
+		Username: USER,
+		Password: PASS,
 	}
 	t.Logf("%s", MarshalUser(user))
 	return

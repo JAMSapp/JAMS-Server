@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -19,9 +18,9 @@ var (
 
 func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	sid := vars["id"]
+	id := vars["id"]
 	// TODO: Factor out get all users
-	if sid == "" {
+	if id == "" {
 		users, err := db.GetUsers()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -29,12 +28,6 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		buf, err := json.Marshal(users)
 		fmt.Fprintf(w, "%s", string(buf))
-		return
-	}
-	id, err := strconv.Atoi(sid)
-	if err != nil {
-		// If it doesn't parse to an int, there will be no associated user.
-		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	u, err := db.GetUserById(id)
@@ -46,7 +39,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "<h1>Id: %d</h1><div>Username: %s</br>Password: %s</div>", u.Id, u.Username, u.Password)
+	fmt.Fprintf(w, "<h1>Id: %s</h1><div>Username: %s</br>Password: %s</div>", u.Id, u.Username, u.Password)
 }
 
 func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -133,13 +126,7 @@ func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
 
 func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	sid := vars["id"]
-	id, err := strconv.Atoi(sid)
-	if err != nil {
-		// If it doesn't parse to an int, there will be no associated user.
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+	id := vars["id"]
 	u, err := db.GetUserById(id)
 	if err != nil {
 		if err == ErrUserNotFound {

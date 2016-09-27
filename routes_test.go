@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/twinj/uuid"
 	"net/http"
 	"strings"
 	"testing"
@@ -42,6 +43,7 @@ func testMessage(t *testing.T) {
 }
 
 func testUser(t *testing.T) {
+	id := uuid.NewV1()
 	// GET /api/user
 	// TODO: Decide on use of this call. Is it needed?
 	r := Get("/api/user", t)
@@ -52,50 +54,51 @@ func testUser(t *testing.T) {
 	// PUT /api/user/{id}
 	// Create a new user or update a user record.
 	// Should return 201 on successful creation, 200 on update, or 5** for server error.
-	r = Put("/api/user/321", "{\"id\": 321, \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
+	r = Put("/api/user/"+id.String(), "{\"id\": \""+id.String()+"\", \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
 	if r != 201 {
-		t.Errorf("PUT /api/user/321 did not return 201, instead returned %d\n", r)
+		t.Errorf("PUT /api/user/%s did not return 201, instead returned %d\n", id.String(), r)
 	}
 
 	// GET /api/user/{id}
 	// Returns the given user resource
 	// Should return 200 if found or 404 if resource isn't found.
-	r = Get("/api/user/321", t)
+	r = Get("/api/user/"+id.String(), t)
 	if r != 200 {
-		t.Errorf("GET /api/user/321 did not return 200, instead returned %d\n", r)
+		t.Errorf("GET /api/user/%s did not return 200, instead returned %d\n", id.String(), r)
 	}
 
+	id2 := uuid.NewV1()
 	// POST /api/user
 	// Create a new user
 	// TODO: Remove id from this and generate a unique one automatically.
 	// Should return 201 for created or 409 for conflict.
-	r = Post("/api/user", "{\"id\": 123, \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
+	r = Post("/api/user", "{\"id\": \""+id2.String()+"\", \"username\":\"asdf\", \"password\": \"fdsa\"}", t)
 	if r != 201 && r != 409 {
 		t.Errorf("POST /api/user did not return 201, instead returned %d\n", r)
 	}
 
 	// Get newly created user.
-	r = Get("/api/user/123", t)
+	r = Get("/api/user/"+id2.String(), t)
 	if r != 200 {
-		t.Errorf("GET /api/user/123 did not return 200, instead returned %d\n", r)
+		t.Errorf("GET /api/user/%s did not return 200, instead returned %d\n", id2.String(), r)
 	}
 
 	// Update the user's record.
-	r = Put("/api/user/123", "{\"id\": 123, \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
+	r = Put("/api/user/"+id2.String(), "{\"id\": \""+id2.String()+"\", \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
 	if r != 200 {
-		t.Errorf("PUT /api/user/123 did not return 200, instead returned %d\n", r)
+		t.Errorf("PUT /api/user/%s did not return 200, instead returned %d\n", id2.String(), r)
 	}
 
 	// DELETE /api/user/{id}
 	// Delete's the user resource.
 	// Should return 204 for deletion, 404 if not found, or 5** for server error
-	r = Delete("/api/user/123", t)
+	r = Delete("/api/user/"+id.String(), t)
 	if r != 204 {
 		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
 	}
 
 	// Delete user record.
-	r = Delete("/api/user/321", t)
+	r = Delete("/api/user/"+id2.String(), t)
 	if r != 204 {
 		t.Errorf("DELETE did not return 204, instead returned %d\n", r)
 	}

@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -25,12 +24,11 @@ func BoltDBOpen(filename string) (BoltDB, error) {
 	return conn, nil
 }
 
-func (db BoltDB) GetUserById(id int) (*User, error) {
+func (db BoltDB) GetUserById(id string) (*User, error) {
 	var buf []byte
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERS))
-		k := strconv.Itoa(id)
-		buf = b.Get([]byte(k))
+		buf = b.Get([]byte(id))
 		return nil
 	})
 
@@ -101,8 +99,7 @@ func (db BoltDB) SaveUser(user *User) error {
 		if err != nil {
 			return err
 		}
-		id := strconv.Itoa(user.Id)
-		return b.Put([]byte(id), encoded)
+		return b.Put([]byte(user.Id), encoded)
 	})
 	return err
 }
@@ -115,8 +112,20 @@ func (db BoltDB) DeleteUser(user *User) error {
 			return err
 		}
 
-		id := strconv.Itoa(user.Id)
-		return b.Delete([]byte(id))
+		return b.Delete([]byte(user.Id))
+	})
+	return err
+}
+
+// Delete a user from the database based on Id.
+func (db BoltDB) AddUnreadMessage(user *User, mes *Message) error {
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(UNREAD))
+		if err != nil {
+			return err
+		}
+
+		return b.Put([]byte(user.Id), mes.Id)
 	})
 	return err
 }
