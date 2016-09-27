@@ -82,8 +82,8 @@ func TestBoltUserLifecycle(t *testing.T) {
 		t.Errorf("User should not be nil.")
 		return
 	}
-	if user.Id == ID {
-		t.Errorf("Id of retrieved user does not match stored user")
+	if user.Id != ID {
+		t.Errorf("Id of retrieved user does not match stored user: %s vs %s", user.Id, ID)
 	}
 	if user.Username != USER {
 		t.Errorf("Username of retrieved user does not match stored user")
