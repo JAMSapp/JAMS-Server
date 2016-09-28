@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func TestLifecycle(t *testing.T) {
-	user := &User{Id: 1234, Username: "user", Password: "hunter2"}
+func TestUserLifecycle(t *testing.T) {
+	user := &User{Id: "asdf", Username: "user", Password: "hunter2"}
 	if err := user.Save(); err != nil {
 		t.Errorf(err.Error())
 	}
@@ -14,7 +14,7 @@ func TestLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	user, err := db.GetUserById(1234)
+	user, err := db.GetUserById("asdf")
 	if err != ErrUserNotFound {
 		t.Errorf("Database found deleted user")
 	}
