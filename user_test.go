@@ -5,7 +5,7 @@ import (
 )
 
 func TestUserLifecycle(t *testing.T) {
-	user := &User{Id: "asdf", Username: "user", Password: "hunter2"}
+	user := NewUser("username", "password")
 	if err := user.Save(); err != nil {
 		t.Errorf(err.Error())
 	}
