@@ -185,7 +185,14 @@ func (db BoltDB) DeleteUser(user *User) error {
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERIDS))
 
-		return b.Delete([]byte(user.Id))
+		err := b.Delete([]byte(user.Id))
+		if err != nil {
+			return err
+		}
+
+		b = tx.Bucket([]byte(USERNAMES))
+
+		return b.Delete([]byte(user.Username))
 	})
 	return err
 }

@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ErrUserNotFound      = errors.New("api: user not found")
-	ErrUserAlreadyExists = errors.New("api: user already exists")
-	ErrUserObjectNil     = errors.New("api: user nil")
+	ErrUserNotFound          = errors.New("api: user not found")
+	ErrUsernameAlreadyExists = errors.New("api: username already exists")
+	ErrUserObjectNil         = errors.New("api: user nil")
 )
 
 // User represents and user registered with the system.
@@ -20,10 +20,12 @@ type User struct {
 
 func NewUser(username, password string) (*User, error) {
 	_, err := db.GetUserByUsername(username)
-	if err != ErrUserNotFound {
-		return nil, ErrUserAlreadyExists
+	if err == ErrUserNotFound {
+		return &User{Id: uuid.NewV1().String(), Username: username, Password: password}, nil
+	} else if err != nil {
+		return nil, err
 	}
-	return &User{Id: uuid.NewV1().String(), Username: username, Password: password}, nil
+	return nil, ErrUsernameAlreadyExists
 }
 
 func (u *User) Save() error {

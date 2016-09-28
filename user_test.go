@@ -18,7 +18,7 @@ func TestUserLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	user, err = db.GetUserById("asdf")
+	user, err = db.GetUserByUsername("username")
 	if err != ErrUserNotFound {
 		t.Errorf("Database found deleted user")
 	}

@@ -68,8 +68,8 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a new user with a randomly generated ID.
 	// Checks for username conflict as well.
 	user, err := NewUser(temp.Username, temp.Password)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err == ErrUsernameAlreadyExists {
+		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
 
@@ -146,6 +146,7 @@ func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	// Possible for user to be deleted between these, though highly unlikely.
 	err = u.Delete()
 	if err != nil {
