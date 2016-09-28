@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -19,9 +18,9 @@ var (
 
 func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	sid := vars["id"]
+	id := vars["id"]
 	// TODO: Factor out get all users
-	if sid == "" {
+	if id == "" {
 		users, err := db.GetUsers()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -31,13 +30,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "%s", string(buf))
 		return
 	}
-	id, err := strconv.Atoi(sid)
-	if err != nil {
-		// If it doesn't parse to an int, there will be no associated user.
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
-	u, err := db.GetUserById(id)
+	user, err := db.GetUserById(id)
 	if err != nil {
 		if err == ErrUserNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -46,28 +39,41 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "<h1>Id: %d</h1><div>Username: %s</br>Password: %s</div>", u.Id, u.Username, u.Password)
+	buf, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Return the user as a JSON object and 200 OK.
+	fmt.Fprintf(w, "%s", string(buf))
 }
 
+// Handle POST requests at the /api/user URL.
 func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
+	// Require JSON content type.
 	content := r.Header.Get("Content-Type")
 	if content != "application/json" {
 		http.Error(w, ErrUnsupportedMediaType.Error(), http.StatusUnsupportedMediaType)
 		return
 	}
 
-	var user User
+	// Read the request body.
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	err = json.Unmarshal(body, &user)
+	// Create a temp User to unmarshal
+	var temp User
+	err = json.Unmarshal(body, &temp)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	// Create a new user with a randomly generated ID.
+	user := NewUser(temp.Username, temp.Password)
 
 	// Double check that a user doesn't already exist.
 	_, err = db.GetUserById(user.Id)
@@ -81,12 +87,22 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: Make a new call for saving a New user to avoid the above check.
-	err = db.SaveUser(&user)
+	err = db.SaveUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// Marshal newly created user into JSON for response
+	buf, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Make sure we return 201 Created
 	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", string(buf))
 	return
 }
 
@@ -133,13 +149,7 @@ func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
 
 func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	sid := vars["id"]
-	id, err := strconv.Atoi(sid)
-	if err != nil {
-		// If it doesn't parse to an int, there will be no associated user.
-		http.Error(w, err.Error(), http.StatusNotFound)
-		return
-	}
+	id := vars["id"]
 	u, err := db.GetUserById(id)
 	if err != nil {
 		if err == ErrUserNotFound {
