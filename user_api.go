@@ -2,18 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 
 	"github.com/gorilla/mux"
-)
-
-var (
-	ErrUserNotFound         = errors.New("api: user not found")
-	ErrUserAlreadyExists    = errors.New("api: user already exists")
-	ErrUnsupportedMediaType = errors.New("api: Content-Type unsupported")
 )
 
 func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,20 +66,14 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new user with a randomly generated ID.
-	user := NewUser(temp.Username, temp.Password)
-
-	// Double check that a user doesn't already exist.
-	_, err = db.GetUserById(user.Id)
-	if err != ErrUserNotFound {
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		http.Error(w, ErrUserAlreadyExists.Error(), http.StatusConflict)
+	// Checks for username conflict as well.
+	user, err := NewUser(temp.Username, temp.Password)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// TODO: Make a new call for saving a New user to avoid the above check.
+	// Must save for persistence.
 	err = db.SaveUser(user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

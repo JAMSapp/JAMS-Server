@@ -1,7 +1,12 @@
 package main
 
 import (
+	"errors"
 	"github.com/twinj/uuid"
+)
+
+var (
+	ErrMessageObjectNil = errors.New("api: message nil")
 )
 
 // Message holds message data and nothing more.
