@@ -89,6 +89,13 @@ func testUser(t *testing.T) {
 		t.Errorf("GET /api/user/%s did not return 200, instead returned %d\n", user.Id, r)
 	}
 
+	// Update the user's record with a conflicting username.
+	// Should fail
+	r = Put("/api/user/"+user.Id, "{\"id\": \""+user.Id+"\", \"username\":\"fdsa\", \"password\": \"farts\"}", t)
+	if r != 409 {
+		t.Errorf("PUT /api/user/%s did not return 409, instead returned %d\n", user.Id, r)
+	}
+
 	// Update the user's record.
 	r = Put("/api/user/"+user.Id, "{\"id\": \""+user.Id+"\", \"username\":\"asdf\", \"password\": \"farts\"}", t)
 	if r != 200 {

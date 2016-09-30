@@ -29,6 +29,23 @@ func NewUser(username, password string) (*User, error) {
 }
 
 func (u *User) Save() error {
+	existing, err := db.GetUserByUsername(u.Username)
+
+	if err != nil {
+		// If User doesn't yet exist, we're good to go
+		if err == ErrUserNotFound {
+			return db.SaveUser(u)
+		}
+		// Some other error is no bueno
+		return err
+	}
+
+	// If the username belongs to a different User ID we fail
+	if existing.Id != u.Id {
+		return ErrUsernameAlreadyExists
+	}
+
+	// Otherwise they should match and we should be good.
 	return db.SaveUser(u)
 }
 

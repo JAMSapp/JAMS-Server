@@ -156,7 +156,19 @@ func (db BoltDB) SaveUser(user *User) error {
 		return ErrUserObjectNil
 	}
 
-	err := db.Conn.Update(func(tx *bolt.Tx) error {
+	u1, err := db.GetUserByUsername(user.Username)
+
+	// If we find a user with that username
+	if err != ErrUserNotFound {
+		// Not the same user?
+		if u1.Id != user.Id {
+			// Conflict
+			return ErrUsernameAlreadyExists
+		}
+	}
+
+	// If everything seems ok otherwise, attempt to save them
+	err = db.Conn.Update(func(tx *bolt.Tx) error {
 		encoded := MarshalUser(user)
 
 		b := tx.Bucket([]byte(USERIDS))
