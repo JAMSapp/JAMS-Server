@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/braintree/manners"
 	"log"
 	"net/http"
 	"os"
@@ -29,9 +30,8 @@ func StartServer() {
 	fmt.Println("[+] BoltDB loaded")
 
 	r := routes()
-	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(manners.ListenAndServe(":8080", r))
 	return
 }
 

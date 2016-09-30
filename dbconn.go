@@ -9,6 +9,7 @@ const (
 
 type DBConn interface {
 	Init() error
+	Close()
 	SaveUser(u *User) error
 	DeleteUser(u *User) error
 	GetUserById(id string) (*User, error)

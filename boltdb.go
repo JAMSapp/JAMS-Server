@@ -39,6 +39,10 @@ func (db BoltDB) Init() error {
 	return err
 }
 
+func (db BoltDB) Close() {
+	db.Conn.Close()
+}
+
 func BoltDBOpen(filename string) (BoltDB, error) {
 	db, err := bolt.Open(filename, 0600, &bolt.Options{Timeout: 1 * time.Second})
 	if err != nil {

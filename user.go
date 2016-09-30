@@ -18,6 +18,7 @@ type User struct {
 	Password string
 }
 
+// Create a new user object with a unique Id. Also checks for dupe username.
 func NewUser(username, password string) (*User, error) {
 	_, err := db.GetUserByUsername(username)
 	if err == ErrUserNotFound {
@@ -28,14 +29,24 @@ func NewUser(username, password string) (*User, error) {
 	return nil, ErrUsernameAlreadyExists
 }
 
+// Save a User object to the DB. Enforces username uniqueness
 func (u *User) Save() error {
 	return db.SaveUser(u)
 }
 
+// Delete a user from the database.
 func (u *User) Delete() error {
 	return db.DeleteUser(u)
 }
 
+// Add an unread message to this user's message queue.
 func (u *User) SendMessage(m *Message) error {
 	return db.AddUnreadMessage(u, m)
 }
+
+/*
+// Retrieve all unread messages from this user's message queue.
+func (u *User) GetUnreadMessages() ([]Message, error) {
+	return db.GetUnreadMessages(u)
+}
+*/

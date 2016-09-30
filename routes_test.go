@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/braintree/manners"
 	"github.com/twinj/uuid"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +16,8 @@ import (
 
 func TestRoutes(t *testing.T) {
 	go StartServer()
+	defer manners.Close()
+	defer db.Close()
 	time.Sleep(100 * time.Millisecond)
 
 	// Test message api
