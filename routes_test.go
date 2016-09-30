@@ -150,14 +150,8 @@ func Post(path, body string, t *testing.T) ([]byte, int) {
 		return nil, 0
 	}
 	defer res.Body.Close()
-	resbody, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf(err.Error())
-		return nil, 0
-	}
 
 	resbody, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
 		t.Errorf(err.Error())
 		return nil, 0
