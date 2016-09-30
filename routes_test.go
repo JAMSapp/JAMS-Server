@@ -73,7 +73,7 @@ func testUser(t *testing.T) {
 	// Create a new user
 	// Should return 201 for created or 409 for conflict.
 	res, r := Post("/api/user", "{\"username\":\"asdf\", \"password\": \"fdsa\"}", t)
-	if r != 201 && r != 409 {
+	if r != 201 {
 		t.Errorf("POST /api/user did not return 201, instead returned %d\n", r)
 	}
 
@@ -90,7 +90,7 @@ func testUser(t *testing.T) {
 	}
 
 	// Update the user's record.
-	r = Put("/api/user/"+user.Id, "{\"id\": \""+user.Id+"\", \"username\":\"fdsa\", \"password\": \"fdsa\"}", t)
+	r = Put("/api/user/"+user.Id, "{\"id\": \""+user.Id+"\", \"username\":\"asdf\", \"password\": \"farts\"}", t)
 	if r != 200 {
 		t.Errorf("PUT /api/user/%s did not return 200, instead returned %d\n", user.Id, r)
 	}
@@ -150,6 +150,7 @@ func Post(path, body string, t *testing.T) ([]byte, int) {
 		return nil, 0
 	}
 	defer res.Body.Close()
+
 	resbody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf(err.Error())

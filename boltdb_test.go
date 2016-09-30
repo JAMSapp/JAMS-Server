@@ -74,23 +74,19 @@ func TestBoltUserLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	user, err = db.GetUserById(ID)
+	// Make sure GetByUserId returns correct user
+	user2, err := db.GetUserById(user.Id)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	if user == nil {
-		t.Errorf("User should not be nil.")
-		return
+	testUsersEqual(user, user2, t)
+
+	// Make sure GetByUserByUsername returns correct user
+	user3, err := db.GetUserByUsername(user.Username)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
-	if user.Id != ID {
-		t.Errorf("Id of retrieved user does not match stored user: %s vs %s", user.Id, ID)
-	}
-	if user.Username != USER {
-		t.Errorf("Username of retrieved user does not match stored user")
-	}
-	if user.Password != PASS {
-		t.Errorf("Password of retrieved user does not match stored user")
-	}
+	testUsersEqual(user, user3, t)
 
 	// TODO: Check the users result.
 	_, err = db.GetUsers()
@@ -108,7 +104,7 @@ func TestBoltUserLifecycle(t *testing.T) {
 		t.Errorf("Found deleted user")
 	}
 	if user != nil {
-		t.Errorf("GetUserById should have returned nill")
+		t.Errorf("GetUserById should have returned nil")
 	}
 
 	return
@@ -156,4 +152,40 @@ func TestBoltMarshalUser(t *testing.T) {
 	}
 	t.Logf("%s", MarshalUser(user))
 	return
+}
+
+func testUsersEqual(u1, u2 *User, t *testing.T) {
+	if u2 == nil {
+		t.Errorf("User should not be nil.")
+		return
+	}
+	if u1.Id != u2.Id {
+		t.Errorf("Id of retrieved user does not match stored user: %s vs %s", u1.Id, u2.Id)
+	}
+	if u1.Username != u2.Username {
+		t.Errorf("Username of retrieved user does not match stored user: %s vs %s", u1.Id, u2.Id)
+	}
+	if u1.Password != u2.Password {
+		t.Errorf("Password of retrieved user does not match stored user: %s vs %s", u1.Id, u2.Id)
+	}
+}
+
+func testGetUserByUsername(username string, t *testing.T) {
+	user, err := db.GetUserByUsername(username)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if user == nil {
+		t.Errorf("User should not be nil.")
+		return
+	}
+	if user.Id != ID {
+		t.Errorf("Id of retrieved user does not match stored user: %s vs %s", user.Id, ID)
+	}
+	if user.Username != USER {
+		t.Errorf("Username of retrieved user does not match stored user")
+	}
+	if user.Password != PASS {
+		t.Errorf("Password of retrieved user does not match stored user")
+	}
 }
