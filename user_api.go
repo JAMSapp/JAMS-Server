@@ -101,35 +101,57 @@ func apiUserPutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var user User
+	// Get the user data from the request body
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Unmarshal the JSON into a user
+	var user User
 	err = json.Unmarshal(body, &user)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Check if a user exists.
+	// Check if a user exists with that ID (update or creation?)
+	var newUser bool
 	_, err = db.GetUserById(user.Id)
-	if err != ErrUserNotFound {
-		if err != nil {
+
+	if err != nil {
+		// If there was no user by this ID we return 201
+		if err == ErrUserNotFound {
+			newUser = true
+
+		} else { // If we got a different error for some reason, return 5**
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-	} else {
-		w.WriteHeader(http.StatusCreated)
+
+	} else { // No error, there is an existing user so this is just an update
+		newUser = false
 	}
 
-	err = db.SaveUser(&user)
+	err = user.Save()
+	// Check to see if there was an error saving this user.
 	if err != nil {
+		// If the username already belongs to another User ID we should return
+		// conflict
+		if err == ErrUsernameAlreadyExists {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
+
+		// If it was a different error, this is a server fault.
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	if newUser {
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusOK)
 	}
 	return
 }
