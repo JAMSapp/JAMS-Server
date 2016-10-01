@@ -35,18 +35,17 @@ func TestRoutes(t *testing.T) {
 
 func testMessage(t *testing.T) {
 	// GET /api/message
-	// TODO: Decide on proper response and functionality for GET /api/message
+	// Not a valid request.
 	r := Get("/api/message", t)
-	if r != 200 {
-		t.Errorf("GET /api/message did not return 200, instead returned %d\n", r)
+	if r != http.StatusBadRequest {
+		t.Errorf("GET /api/message did not return %s, instead returned %d\n", http.StatusBadRequest, r)
 	}
 
 	// POST /api/message
-	// Creates a new message with the given body parameter.
-	// Should return 201 on successful creation or 5** for server error.
+	// Not a valid request.
 	_, r = Post("/api/message", "{\"body\": \"This is the body of the first message.\"}", t)
-	if r != 201 {
-		t.Errorf("POST /api/message did not return 201, instead returned %d\n", r)
+	if r != http.StatusBadRequest {
+		t.Errorf("POST /api/message did not return %d, instead returned %d\n", http.StatusBadRequest, r)
 	}
 }
 
