@@ -35,7 +35,6 @@ func TestBoltMessageLifecycle(t *testing.T) {
 
 	// TODO: Create some sort of init function to handle the calling of any
 	// necessary init requirements throughout server.
-	uuid.Init() // Must init before V1 uuids.
 	mes := NewMessage("test message body")
 	err = db.SaveMessage(mes)
 	if err != nil {
@@ -141,7 +140,6 @@ func TestBoltMessageSend(t *testing.T) {
 
 	// TODO: Create some sort of init function to handle the calling of any
 	// necessary init requirements throughout server.
-	//uuid.Init() // Must init before V1 uuids.
 	mes := NewMessage("test message body")
 	err = db.SaveMessage(mes)
 	if err != nil {
