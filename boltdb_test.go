@@ -46,8 +46,18 @@ func TestBoltMessageLifecycle(t *testing.T) {
 
 	err = db.AddUnreadMessage(user, mes)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("AddUnreadMessage: %s", err.Error())
 	}
+
+	_, err = db.GetUnreadMessages(user)
+	if err != nil {
+		t.Errorf("GetUnreadMessages: %s", err.Error())
+	}
+	/*
+		if len(messages) != 1 {
+			t.Errorf("db.GetUnreadMessages returned too many messages")
+		}
+	*/
 
 	err = db.DeleteMessage(mes)
 	if err != nil {
