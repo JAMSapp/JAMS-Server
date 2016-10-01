@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/braintree/manners"
 	"github.com/twinj/uuid"
 	"io/ioutil"
 	"net/http"
@@ -14,7 +15,8 @@ import (
 // TODO: factor out magic numbers and strings
 
 func TestRoutes(t *testing.T) {
-	go StartServer()
+	c := make(chan int)
+	go StartServer(c)
 	time.Sleep(100 * time.Millisecond)
 
 	// Test message api
@@ -25,6 +27,10 @@ func TestRoutes(t *testing.T) {
 
 	// Test auth api
 	testAuth(t)
+
+	manners.Close()
+	<-c
+	return
 }
 
 func testMessage(t *testing.T) {

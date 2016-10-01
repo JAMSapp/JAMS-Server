@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"github.com/braintree/manners"
 	"net/http"
 	"os"
 )
@@ -15,23 +15,26 @@ func main() {
 	fmt.Println("JAMA Server version ", version)
 	fmt.Println("[*] Starting server...")
 
-	StartServer()
+	c := make(chan int)
+	go StartServer(c)
+	<-c
 }
 
-func StartServer() {
+func StartServer(c chan int) {
 	fmt.Println("[+] Loading BoltDB")
 	boltdb, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		fmt.Printf("[!] Error opening BoltDB: %s\n", err.Error())
 		os.Exit(1)
 	}
+	defer boltdb.Close()
 	db = boltdb
 	fmt.Println("[+] BoltDB loaded")
 
 	r := routes()
-	http.Handle("/", r)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	manners.ListenAndServe(":8080", r)
+	c <- 0
 	return
 }
 

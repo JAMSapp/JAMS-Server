@@ -35,7 +35,6 @@ func TestBoltMessageLifecycle(t *testing.T) {
 
 	// TODO: Create some sort of init function to handle the calling of any
 	// necessary init requirements throughout server.
-	uuid.Init() // Must init before V1 uuids.
 	mes := NewMessage("test message body")
 	err = db.SaveMessage(mes)
 	if err != nil {
@@ -46,8 +45,18 @@ func TestBoltMessageLifecycle(t *testing.T) {
 
 	err = db.AddUnreadMessage(user, mes)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("AddUnreadMessage: %s", err.Error())
 	}
+
+	_, err = db.GetUnreadMessages(user)
+	if err != nil {
+		t.Errorf("GetUnreadMessages: %s", err.Error())
+	}
+	/*
+		if len(messages) != 1 {
+			t.Errorf("db.GetUnreadMessages returned too many messages")
+		}
+	*/
 
 	err = db.DeleteMessage(mes)
 	if err != nil {
@@ -131,7 +140,6 @@ func TestBoltMessageSend(t *testing.T) {
 
 	// TODO: Create some sort of init function to handle the calling of any
 	// necessary init requirements throughout server.
-	//uuid.Init() // Must init before V1 uuids.
 	mes := NewMessage("test message body")
 	err = db.SaveMessage(mes)
 	if err != nil {

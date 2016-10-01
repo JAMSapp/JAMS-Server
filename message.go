@@ -15,7 +15,7 @@ var (
 // UUID based on a timestamp to keep it sequential (CSPRNG not needed for
 // message IDs.
 type Message struct {
-	Id   string `json:"-"` // We don't want people submitting their own Id.
+	Id   string
 	Body string
 }
 
