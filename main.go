@@ -8,6 +8,8 @@ import (
 )
 
 const version = "0.0.1"
+const certFile = ".lego/certificates/jams.howardisaslut.com.crt"
+const keyFile = ".lego/certificates/jams.howardisaslut.com.key"
 
 var db DBConn
 
@@ -33,7 +35,7 @@ func StartServer(c chan int) {
 
 	r := routes()
 
-	manners.ListenAndServe(":8080", r)
+	manners.ListenAndServeTLS(":443", certFile, keyFile, r)
 	c <- 0
 	return
 }
