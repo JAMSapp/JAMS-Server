@@ -49,9 +49,9 @@ func testMessage(t *testing.T) {
 		t.Errorf("POST /api/message did not return 201, instead returned %d\n", r)
 	}
 }
-
 func testUser(t *testing.T) {
 	id := uuid.NewV1()
+
 	// GET /api/user
 	// TODO: Decide on use of this call. Is it needed?
 	r := Get("/api/user", t)
@@ -126,6 +126,11 @@ func testUser(t *testing.T) {
 	r = Delete("/api/user/1337", t)
 	if r != 404 {
 		t.Errorf("DELETE on user not found\n")
+	}
+
+	r = Get("/api/user", t)
+	if r != 200 {
+		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
 	}
 }
 

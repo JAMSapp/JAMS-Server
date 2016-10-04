@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/twinj/uuid"
@@ -88,6 +89,7 @@ func TestBoltUserLifecycle(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	t.Logf("[+] Test GetByUserId equality\n")
 	testUsersEqual(user, user2, t)
 
 	// Make sure GetByUserByUsername returns correct user
@@ -95,13 +97,14 @@ func TestBoltUserLifecycle(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	t.Logf("[+] Test GetByUserUsername equality\n")
 	testUsersEqual(user, user3, t)
 
-	// TODO: Check the users result.
-	_, err = db.GetUsers()
+	users, err := db.GetUsers()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	fmt.Printf("%#v\n", users)
 
 	err = db.DeleteUser(user)
 	if err != nil {
@@ -115,6 +118,12 @@ func TestBoltUserLifecycle(t *testing.T) {
 	if user != nil {
 		t.Errorf("GetUserById should have returned nil")
 	}
+
+	users, err = db.GetUsers()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	fmt.Printf("%#v\n", users)
 
 	return
 }
