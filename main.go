@@ -35,7 +35,8 @@ func StartServer(c chan int) {
 
 	r := routes()
 
-	manners.ListenAndServeTLS(":443", certFile, keyFile, r)
+	manners.ListenAndServe(":8080", r)
+	//manners.ListenAndServeTLS(":443", certFile, keyFile, r)
 	c <- 0
 	return
 }
