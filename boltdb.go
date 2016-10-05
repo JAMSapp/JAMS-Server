@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -176,15 +175,12 @@ func (db BoltDB) SaveUser(user *User) error {
 	err = db.Conn.Update(func(tx *bolt.Tx) error {
 		encoded := MarshalUser(user)
 
-		fmt.Printf("SaveUser\n")
-		fmt.Printf("USERIDS: %s, %s\n", user.Id, string(encoded))
 		b := tx.Bucket([]byte(USERIDS))
 		err := b.Put([]byte(user.Id), encoded)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("USERNAMES: %s, %s\n", user.Username, string(encoded))
 		b = tx.Bucket([]byte(USERNAMES))
 		err = b.Put([]byte(user.Username), encoded)
 		if err != nil {
@@ -201,7 +197,6 @@ func (db BoltDB) DeleteUser(user *User) error {
 	if user == nil {
 		return ErrUserObjectNil
 	}
-	fmt.Printf("Delete User: %#v\n", user)
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERIDS))
@@ -279,7 +274,6 @@ func (db BoltDB) GetUnreadMessages(user *User) ([]Message, error) {
 func MarshalUser(u *User) []byte {
 	e, err := json.Marshal(u)
 	if err != nil {
-		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
