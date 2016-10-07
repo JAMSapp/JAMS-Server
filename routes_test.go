@@ -75,6 +75,20 @@ func testUser(t *testing.T) {
 		t.Errorf("GET /api/user/%s did not return 200, instead returned %d\n", id.String(), r)
 	}
 
+	// GET /api/user?username={username}
+	// Returns the given user resource
+	// Should return 200 if found or 404 if resource isn't found.
+	r = Get("/api/user?username=fdsa", t)
+	if r != http.StatusOK {
+		t.Errorf("GET /api/user?username=fdsa did not return %d, instead returned %d\n", http.StatusOK, r)
+	}
+
+	// Should return 404
+	r = Get("/api/user?username=farts", t)
+	if r != http.StatusNotFound {
+		t.Errorf("GET /api/user?username=farts did not return %d, instead returned %d\n", http.StatusNotFound, r)
+	}
+
 	// POST /api/user
 	// Create a new user
 	// Should return 201 for created or 409 for conflict.

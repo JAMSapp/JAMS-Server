@@ -14,6 +14,25 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	// TODO: Factor out get all users
 	if id == "" {
+		username := r.FormValue("username")
+		// Was this a get searching for user by username?
+		if username != "" {
+			user, err := db.GetUserByUsername(username)
+			if err == ErrUserNotFound {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return
+			}
+			buf, err := json.Marshal(user)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			// Return the user as a JSON object and 200 OK.
+			w.Header().Add("Content-Type", "application/json")
+			fmt.Fprintf(w, "%s", string(buf))
+			return
+
+		}
 		users, err := db.GetUsers()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -38,6 +57,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Return the user as a JSON object and 200 OK.
+	w.Header().Add("Content-Type", "application/json")
 	fmt.Fprintf(w, "%s", string(buf))
 }
 
