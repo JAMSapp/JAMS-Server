@@ -42,11 +42,10 @@ func testMessage(t *testing.T) {
 	}
 
 	// POST /api/message
-	// Creates a new message with the given body parameter.
-	// Should return 201 on successful creation or 5** for server error.
+	// Method not supported
 	_, r = Post("/api/message", "{\"body\": \"This is the body of the first message.\"}", t)
-	if r != 201 {
-		t.Errorf("POST /api/message did not return 201, instead returned %d\n", r)
+	if r != http.StatusMethodNotAllowed {
+		t.Errorf("POST /api/message did not return %d, instead returned %d\n", http.StatusMethodNotAllowed, r)
 	}
 }
 func testUser(t *testing.T) {

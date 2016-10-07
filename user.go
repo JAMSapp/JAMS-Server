@@ -38,13 +38,3 @@ func (u *User) Save() error {
 func (u *User) Delete() error {
 	return db.DeleteUser(u)
 }
-
-// Add an unread message to this user's message queue.
-func (u *User) SendMessage(m *Message) error {
-	return db.AddUnreadMessage(u, m)
-}
-
-// Retrieve all unread messages from this user's message queue.
-func (u *User) GetUnreadMessages() ([]Message, error) {
-	return db.GetUnreadMessages(u)
-}

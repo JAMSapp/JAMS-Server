@@ -41,22 +41,10 @@ func TestBoltMessageLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	user := &User{Id: ID, Username: USER, Password: PASS}
-
-	err = db.AddUnreadMessage(user, mes)
+	_, err = db.GetMessages()
 	if err != nil {
-		t.Errorf("AddUnreadMessage: %s", err.Error())
+		t.Errorf(err.Error())
 	}
-
-	_, err = db.GetUnreadMessages(user)
-	if err != nil {
-		t.Errorf("GetUnreadMessages: %s", err.Error())
-	}
-	/*
-		if len(messages) != 1 {
-			t.Errorf("db.GetUnreadMessages returned too many messages")
-		}
-	*/
 
 	err = db.DeleteMessage(mes)
 	if err != nil {
@@ -143,11 +131,6 @@ func TestBoltMessageSend(t *testing.T) {
 	// necessary init requirements throughout server.
 	mes := NewMessage("test message body")
 	err = db.SaveMessage(mes)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	err = db.AddUnreadMessage(user, mes)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
