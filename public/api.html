@@ -1,21 +1,81 @@
 <html>
     <head>
         <title>
-            JAMA - API Page for Just Another Messaging App
+            JAMS - API Page for Just Another Messaging Service
         </title>
     </head>
     <body>
         <div>
             <h1>
-                JAMA - API Page for Just Another Messaging App
+                JAMS - API Page for Just Another Messaging Service
             </h1>
             <pre>
+
+Users
+=====
+
 GET - /api/user
     Get a list of all users.
+    Should return 200.
+
+POST - /api/user
+    Create a new user
+    Should return 201 for created or 409 for conflict.
+
+PUT - /api/user/{id}
+    Create a new user or update a user record.
+    Should return 201 on successful creation, 200 on update, or 5** for server error.
+    Should also return user object in body.
+
+GET - /api/user/{id}
+    Returns the given user resource
+    Should return 200 if found or 404 if resource isn't found.
+        
+DELETE - /api/user/{id}
+    Deletes the user resource.
+    Should return 204 for deletion, 404 if not found, or 5** for server error
+
+
+Messages
+========
+
 GET - /api/message
     Get a list of all messages.
+
+POST - /api/message
+    Method not allowed.
+    Should return 405 and "GET" in Allow methods.
+
+GET - /api/thread
+    Should return all message threads
+
+POST - /api/thread
+    Create a new message thread. Takes an array of user ids as participants.
+    Returns 200 if success.
+
+GET - /api/thread/{id}/
+    Get thread info (Ie. participants)
+    Returns 200, 404, 5**
+
+GET - /api/thread/{id}/message
+    Get all messages in this message thread.
+    Returns 200, 404, 5**
+
+GET - /api/thread/{id}/message?after={message id}
+    Get all messages in this message thread after given message
+    Returns 200, 404, 5**
+
+POST - /api/thread/{id}/message
+    Create a new message for a given thread
+    Returns 201, 404, 5**
+
+
+Auth
+====
+
 GET - /api/auth
     405 - Method Not Allowed
+
             </pre>
         </div>
     </body>

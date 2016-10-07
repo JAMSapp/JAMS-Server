@@ -55,8 +55,8 @@ func testUser(t *testing.T) {
 	// GET /api/user
 	// TODO: Decide on use of this call. Is it needed?
 	r := Get("/api/user", t)
-	if r != 200 {
-		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
+	if r != http.StatusOK {
+		t.Errorf("GET /api/user did not return %d, instead returned %d\n", http.StatusOK, r)
 	}
 
 	// PUT /api/user/{id}
