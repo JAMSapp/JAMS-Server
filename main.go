@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-const version = "0.0.1"
+const version = "0.0.2"
 const certFile = ".lego/certificates/jams.howardisaslut.com.crt"
 const keyFile = ".lego/certificates/jams.howardisaslut.com.key"
 
