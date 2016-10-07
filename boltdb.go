@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"os"
 	"time"
 
@@ -104,13 +103,36 @@ func (db BoltDB) GetUserById(id string) (*User, error) {
 	return user, err
 }
 
+func (db BoltDB) GetMessages() ([]Message, error) {
+	messages := make([]Message, 0)
+	err := db.Conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(MESSAGES))
+
+		return b.ForEach(func(k, v []byte) error {
+			if len(v) == 0 {
+				return nil
+			}
+
+			var mes Message
+			err := json.Unmarshal(v, &mes)
+			if err != nil {
+				return err
+			}
+			messages = append(messages, mes)
+			return nil
+		})
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
+}
+
 func (db BoltDB) GetUsers() ([]User, error) {
 	users := make([]User, 0)
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERNAMES))
-		if b == nil {
-			return ErrUserNotFound
-		}
 
 		return b.ForEach(func(k, v []byte) error {
 			u, err := UnmarshalUser(v)
@@ -135,8 +157,12 @@ func (db BoltDB) SaveMessage(mes *Message) error {
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(MESSAGES))
+		buf, err := json.Marshal(mes)
+		if err != nil {
+			return err
+		}
 
-		return b.Put([]byte(mes.Id), []byte(mes.Body))
+		return b.Put([]byte(mes.Id), buf)
 	})
 	return err
 }
@@ -211,64 +237,6 @@ func (db BoltDB) DeleteUser(user *User) error {
 		return b.Delete([]byte(user.Username))
 	})
 	return err
-}
-
-// Adds a new message to the UNREAD queue of a user. Message must be saved prior
-// otherwise it will not exist in the database.
-func (db BoltDB) AddUnreadMessage(user *User, mes *Message) error {
-	if user == nil {
-		return ErrUserObjectNil
-	}
-	if mes == nil {
-		return ErrMessageObjectNil
-	}
-
-	err := db.Conn.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(UNREAD))
-		buf := b.Get([]byte(user.Id))
-
-		var messages []Message
-		if len(buf) > 0 {
-
-			// Unmarshal the data stored so far.
-			err := json.Unmarshal(buf, &messages)
-			if err != nil {
-				return errors.New("messages unmarshal: " + err.Error())
-			}
-
-		}
-
-		// Append the new message to the queue
-		messages = append(messages, *mes)
-		buf, err := json.Marshal(messages)
-		if err != nil {
-			return errors.New("messages marshal: " + err.Error())
-		}
-
-		return b.Put([]byte(user.Id), buf)
-	})
-	return err
-}
-
-//Retrieves all unread messages for a user.
-func (db BoltDB) GetUnreadMessages(user *User) ([]Message, error) {
-	if user == nil {
-		return nil, ErrUserObjectNil
-	}
-
-	var buf []byte
-	err := db.Conn.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(UNREAD))
-		buf = b.Get([]byte(user.Id))
-		return nil
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	messages := make([]Message, 0)
-	err = json.Unmarshal(buf, &messages)
-	return messages, err
 }
 
 func MarshalUser(u *User) []byte {

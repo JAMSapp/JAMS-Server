@@ -17,6 +17,5 @@ type DBConn interface {
 	GetUsers() ([]User, error)
 	SaveMessage(m *Message) error
 	DeleteMessage(m *Message) error
-	AddUnreadMessage(u *User, m *Message) error
-	GetUnreadMessages(u *User) ([]Message, error)
+	GetMessages() ([]Message, error)
 }
