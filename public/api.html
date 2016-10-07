@@ -18,6 +18,10 @@ GET - /api/user
     Get a list of all users.
     Should return 200.
 
+GET - /api/user?username={username}
+    Get a user from their username
+    Should return 200 or 404.
+
 POST - /api/user
     Create a new user
     Should return 201 for created or 409 for conflict.
