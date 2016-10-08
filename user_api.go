@@ -33,7 +33,7 @@ func apiUserGetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 
 		}
-		users, err := db.GetUsers()
+		users, err := db.GetAllUsers()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}

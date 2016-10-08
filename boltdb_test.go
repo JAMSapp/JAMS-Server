@@ -41,15 +41,6 @@ func TestBoltMessageLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
-	_, err = db.GetMessages()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	err = db.DeleteMessage(mes)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
 }
 
 func TestBoltUserLifecycle(t *testing.T) {
@@ -76,7 +67,6 @@ func TestBoltUserLifecycle(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	t.Logf("[+] Test GetByUserId equality\n")
 	testUsersEqual(user, user2, t)
 
 	// Make sure GetByUserByUsername returns correct user
@@ -84,10 +74,9 @@ func TestBoltUserLifecycle(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	t.Logf("[+] Test GetByUserUsername equality\n")
 	testUsersEqual(user, user3, t)
 
-	_, err = db.GetUsers()
+	_, err = db.GetAllUsers()
 	if err != nil {
 		t.Errorf(err.Error())
 	}
@@ -139,16 +128,6 @@ func TestBoltMessageSend(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-}
-
-func TestBoltMarshalUser(t *testing.T) {
-	user := &User{
-		Id:       ID,
-		Username: USER,
-		Password: PASS,
-	}
-	t.Logf("%s", MarshalUser(user))
-	return
 }
 
 func testUsersEqual(u1, u2 *User, t *testing.T) {
