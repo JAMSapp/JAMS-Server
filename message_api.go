@@ -42,7 +42,7 @@ func apiThreadMessagePostHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 func apiMessageGetHandler(w http.ResponseWriter, r *http.Request) {
-	messages, err := db.GetMessages()
+	messages, err := db.GetAllMessages()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -34,9 +34,4 @@ func TestNewMessage(t *testing.T) {
 		t.Errorf("Error when saving message: %s", err.Error())
 	}
 
-	// Delete the message from the database.
-	err = m.Delete()
-	if err != nil {
-		t.Errorf("Error when deleting message: %s", err.Error())
-	}
 }

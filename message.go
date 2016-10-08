@@ -30,9 +30,3 @@ func NewMessage(body string) *Message {
 func (m *Message) Save() error {
 	return db.SaveMessage(m)
 }
-
-// Delete will remove any matching record from the database permanently and will
-// return an error in case of DB failure.
-func (m *Message) Delete() error {
-	return db.DeleteMessage(m)
-}
