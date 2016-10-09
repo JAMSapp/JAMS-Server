@@ -92,7 +92,7 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
-	if err == ErrUsernameCannotBeEmpty {
+	if err == ErrUsernameCannotBeEmpty || err == ErrPasswordCannotBeEmpty {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
