@@ -130,6 +130,10 @@ func (db BoltDB) DeleteUser(user *User) error {
 // GetUserById takes an Id by string and check the database for any matching
 // users. Return ErrUserNotFound if there is no match.
 func (db BoltDB) GetUserById(id string) (*User, error) {
+	// Make sure we have a username to check.
+	if id == "" {
+		return nil, ErrIdCannotBeEmpty
+	}
 	var buf []byte
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERIDS))
@@ -157,6 +161,11 @@ func (db BoltDB) GetUserById(id string) (*User, error) {
 // users with a matching username. Returns ErrUserNotFound if there are no
 // matches.
 func (db BoltDB) GetUserByUsername(username string) (*User, error) {
+	// Make sure we have a username to check.
+	if username == "" {
+		return nil, ErrUsernameCannotBeEmpty
+	}
+
 	var buf []byte
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERNAMES))

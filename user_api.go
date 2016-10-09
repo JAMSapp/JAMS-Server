@@ -92,6 +92,10 @@ func apiUserPostHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusConflict)
 		return
 	}
+	if err == ErrUsernameCannotBeEmpty {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	// Must save for persistence.
 	err = db.SaveUser(user)
