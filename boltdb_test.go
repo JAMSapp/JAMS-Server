@@ -86,12 +86,45 @@ func TestBoltUserLifecycle(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 
+	// Test getting a user by an ID that doesn't exist.
 	user, err = db.GetUserById(ID)
 	if err != ErrUserNotFound {
 		t.Errorf("Found deleted user")
 	}
 	if user != nil {
 		t.Errorf("GetUserById should have returned nil")
+	}
+
+	// Test saving a nil user.
+	user = nil
+	err = db.SaveUser(user)
+	// Should error out with this specific error.
+	if err != ErrUserObjectNil {
+		if err == nil {
+			t.Errorf("SaveUser should have returned an error.")
+		} else {
+			t.Errorf(err.Error())
+		}
+	}
+
+	// Test failure on GetUserByUsername
+	_, err = db.GetUserByUsername("")
+	if err != ErrUsernameCannotBeEmpty {
+		if err == nil {
+			t.Errorf("GetUserByUsername should have returned an error for blank input.")
+		} else {
+			t.Errorf("Should have gotten ErrUsernameCannotBeEmpty, instead go %s\n", err.Error())
+		}
+	}
+
+	// Test failure on GetUserById.
+	_, err = db.GetUserById("")
+	if err != ErrIdCannotBeEmpty {
+		if err == nil {
+			t.Errorf("GetUserById should have returned an error for blank input.")
+		} else {
+			t.Errorf("Should have gotten ErrIdCannotBeEmpty, instead go %s\n", err.Error())
+		}
 	}
 
 	return
