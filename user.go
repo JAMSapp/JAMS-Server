@@ -9,6 +9,7 @@ var (
 	ErrUserNotFound          = errors.New("api: user not found")
 	ErrUsernameAlreadyExists = errors.New("api: username already exists")
 	ErrUsernameCannotBeEmpty = errors.New("api: username cannot be empty")
+	ErrPasswordCannotBeEmpty = errors.New("api: username cannot be empty")
 	ErrIdCannotBeEmpty       = errors.New("api: Id cannot be empty")
 	ErrUserObjectNil         = errors.New("api: user nil")
 )
@@ -24,6 +25,9 @@ type User struct {
 func NewUser(username, password string) (*User, error) {
 	if username == "" {
 		return nil, ErrUsernameCannotBeEmpty
+	}
+	if password == "" {
+		return nil, ErrPasswordCannotBeEmpty
 	}
 
 	// Make sure there is no username conflict.

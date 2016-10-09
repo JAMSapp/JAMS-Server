@@ -145,6 +145,22 @@ func testUser(t *testing.T) {
 	if r != 200 {
 		t.Errorf("GET /api/user did not return 200, instead returned %d\n", r)
 	}
+
+	// POST /api/user
+	// Test failure on empty username
+	// Should return 400
+	_, r = Post("/api/user", "{\"username\":\"\", \"password\": \"fdsa\"}", t)
+	if r != http.StatusBadRequest {
+		t.Errorf("POST /api/user did not return %d, instead returned %d\n", http.StatusBadRequest, r)
+	}
+
+	// POST /api/user
+	// Test failure on empty password
+	// Should return 400
+	_, r = Post("/api/user", "{\"username\":\"asdf\", \"password\": \"\"}", t)
+	if r != http.StatusBadRequest {
+		t.Errorf("POST /api/user did not return %d, instead returned %d\n", http.StatusBadRequest, r)
+	}
 }
 
 func testAuth(t *testing.T) {
