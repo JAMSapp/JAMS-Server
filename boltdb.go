@@ -61,6 +61,9 @@ func (db BoltDB) Init() error {
 
 // Close the DB connection.
 func (db BoltDB) Close() {
+	if db.Conn == nil {
+		return
+	}
 	db.Conn.Close()
 }
 
@@ -106,27 +109,6 @@ func (db BoltDB) SaveUser(user *User) error {
 	return err
 }
 
-// DeleteUser removes a user from the database based on Id and Username
-func (db BoltDB) DeleteUser(user *User) error {
-	if user == nil {
-		return ErrUserObjectNil
-	}
-
-	err := db.Conn.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(USERIDS))
-
-		err := b.Delete([]byte(user.Id))
-		if err != nil {
-			return err
-		}
-
-		b = tx.Bucket([]byte(USERNAMES))
-
-		return b.Delete([]byte(user.Username))
-	})
-	return err
-}
-
 // GetUserById takes an Id by string and check the database for any matching
 // users. Return ErrUserNotFound if there is no match.
 func (db BoltDB) GetUserById(id string) (*User, error) {
@@ -138,7 +120,7 @@ func (db BoltDB) GetUserById(id string) (*User, error) {
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERIDS))
 		if b == nil {
-			return ErrUserNotFound
+			return ErrUserNotFound // TODO: CreateBucketIfNotExists
 		}
 
 		buf = b.Get([]byte(id))
@@ -170,7 +152,7 @@ func (db BoltDB) GetUserByUsername(username string) (*User, error) {
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERNAMES))
 		if b == nil {
-			return ErrUserNotFound
+			return ErrUserNotFound // TODO: CreateBucketIfNotExists
 		}
 
 		buf = b.Get([]byte(username))
@@ -213,11 +195,38 @@ func (db BoltDB) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
+// DeleteUser removes a user from the database based on Id and Username
+func (db BoltDB) DeleteUser(user *User) error {
+	if user == nil {
+		return ErrUserObjectNil
+	}
+
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(USERIDS))
+
+		err := b.Delete([]byte(user.Id))
+		if err != nil {
+			return err
+		}
+
+		b = tx.Bucket([]byte(USERNAMES))
+
+		return b.Delete([]byte(user.Username))
+	})
+	return err
+}
+
 // SaveMessage takes a message object as saves it in the database, rewriting any
 // previous message stored with the same Id.
 func (db BoltDB) SaveMessage(mes *Message) error {
 	if mes == nil {
-		return ErrMessageObjectNil
+		return ErrMsgNil
+	}
+	if mes.Id == "" {
+		return ErrMsgIdBlank
+	}
+	if mes.Body == "" {
+		return ErrMsgBodyBlank
 	}
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {

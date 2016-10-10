@@ -6,7 +6,9 @@ import (
 )
 
 var (
-	ErrMessageObjectNil = errors.New("api: message nil")
+	ErrMsgNil       = errors.New("api: message nil")
+	ErrMsgIdBlank   = errors.New("api: message id blank")
+	ErrMsgBodyBlank = errors.New("api: message body blank")
 )
 
 // Message holds message data and nothing more.
