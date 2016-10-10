@@ -71,7 +71,7 @@ func (db BoltDB) Close() {
 // previous user stored with the same Id or Username.
 func (db BoltDB) SaveUser(user *User) error {
 	if user == nil {
-		return ErrUserObjectNil
+		return ErrUserNil
 	}
 
 	u1, err := db.GetUserByUsername(user.Username)
@@ -114,7 +114,7 @@ func (db BoltDB) SaveUser(user *User) error {
 func (db BoltDB) GetUserById(id string) (*User, error) {
 	// Make sure we have a username to check.
 	if id == "" {
-		return nil, ErrIdCannotBeEmpty
+		return nil, ErrUserIdBlank
 	}
 	var buf []byte
 	err := db.Conn.View(func(tx *bolt.Tx) error {
@@ -145,7 +145,7 @@ func (db BoltDB) GetUserById(id string) (*User, error) {
 func (db BoltDB) GetUserByUsername(username string) (*User, error) {
 	// Make sure we have a username to check.
 	if username == "" {
-		return nil, ErrUsernameCannotBeEmpty
+		return nil, ErrUsernameBlank
 	}
 
 	var buf []byte
@@ -198,7 +198,7 @@ func (db BoltDB) GetAllUsers() ([]User, error) {
 // DeleteUser removes a user from the database based on Id and Username
 func (db BoltDB) DeleteUser(user *User) error {
 	if user == nil {
-		return ErrUserObjectNil
+		return ErrUserNil
 	}
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
