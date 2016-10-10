@@ -47,8 +47,8 @@ func TestBoltSaveUser(t *testing.T) {
 	nilUser = nil
 	// Test saving a nil user.
 	err = db.SaveUser(nilUser)
-	if err != ErrUserObjectNil {
-		t.Errorf("Saving user with nil object did not return ErrUserObjectNil")
+	if err != ErrUserNil {
+		t.Errorf("Saving user with nil object did not return ErrUserNil")
 	}
 
 	// Test regular ol' save.
@@ -75,8 +75,8 @@ func TestBoltGetUserById(t *testing.T) {
 
 	// Test getting user with blank Id
 	u, err := db.GetUserById("")
-	if err != ErrIdCannotBeEmpty {
-		t.Errorf("Getting user with blank id did not return ErrIdCannotBeEmpty")
+	if err != ErrUserIdBlank {
+		t.Errorf("Getting user with blank id did not return ErrUserIdBlank")
 	}
 	if u != nil {
 		t.Errorf("Getting user with blank username did not return nil user")
@@ -114,8 +114,8 @@ func TestBoltGetUserByUsername(t *testing.T) {
 
 	// Test getting user with blank username
 	u, err := db.GetUserByUsername("")
-	if err != ErrUsernameCannotBeEmpty {
-		t.Errorf("Getting user with blank username did not return ErrIdCannotBeEmpty")
+	if err != ErrUsernameBlank {
+		t.Errorf("Getting user with blank username did not return ErrUsernameBlank")
 	}
 	if u != nil {
 		t.Errorf("Getting user with blank username did not return nil user")
@@ -174,8 +174,8 @@ func TestBoltDeleteUser(t *testing.T) {
 	nilUser = nil
 	// Test saving a nil user.
 	err = db.DeleteUser(nilUser)
-	if err != ErrUserObjectNil {
-		t.Errorf("Saving user with nil object did not return ErrUserObjectNil")
+	if err != ErrUserNil {
+		t.Errorf("Saving user with nil object did not return ErrUserNil")
 	}
 
 	// Delete this test user form the DB.
