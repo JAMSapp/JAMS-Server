@@ -15,6 +15,10 @@ var PASS = "hunter2"
 var user = &User{Id: ID, Username: USER, Password: PASS}
 var userDupeName = &User{Id: ID2, Username: USER, Password: PASS}
 
+var BODY = "This is a test message."
+
+var message = &Message{Id: ID, Body: BODY}
+
 func TestBoltDBOpen(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
@@ -181,7 +185,7 @@ func TestBoltDeleteUser(t *testing.T) {
 	}
 }
 
-func TestBoltMessageLifecycle(t *testing.T) {
+func TestBoltSaveMessage(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -189,49 +193,32 @@ func TestBoltMessageLifecycle(t *testing.T) {
 	}
 	defer db.Conn.Close()
 
-	// TODO: Create some sort of init function to handle the calling of any
-	// necessary init requirements throughout server.
-	mes := NewMessage("test message body")
+	var nilMes *Message
+	nilMes = nil
+	err = db.SaveMessage(nilMes)
+	if err != ErrMsgNil {
+		t.Errorf("SaveMessage with nil object did not return ErrMsgNil")
+	}
+
+	err = db.SaveMessage(message)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	mes := &Message{Id: "", Body: BODY}
 	err = db.SaveMessage(mes)
-	if err != nil {
-		t.Errorf(err.Error())
+	if err != ErrMsgIdBlank {
+		t.Errorf("SaveMessage with blank Id did not return ErrMsgIdBlank")
 	}
 
-}
-
-func TestBoltMessageSend(t *testing.T) {
-	user := &User{
-		Id:       ID,
-		Username: USER,
-		Password: PASS,
-	}
-
-	db, err := BoltDBOpen(DBFILE)
-	if err != nil {
-		t.Errorf(err.Error())
-		return
-	}
-	defer db.Conn.Close()
-
-	err = db.SaveUser(user)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	// TODO: Create some sort of init function to handle the calling of any
-	// necessary init requirements throughout server.
-	mes := NewMessage("test message body")
+	mes = &Message{Id: ID, Body: ""}
 	err = db.SaveMessage(mes)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	err = db.DeleteUser(user)
-	if err != nil {
-		t.Errorf(err.Error())
+	if err != ErrMsgBodyBlank {
+		t.Errorf("SaveMessage with blank Body did not return ErrMsgBodyBlank")
 	}
 }
 
+// Utils
 func testUsersEqual(u1, u2 *User, t *testing.T) {
 	if u2 == nil {
 		t.Errorf("User should not be nil.")
