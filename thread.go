@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrThreadObjectNil = errors.New("api: thread nil")
-	ErrThreadNotFound  = errors.New("api: thread not found")
+	ErrThreadNil      = errors.New("api: thread nil")
+	ErrThreadNotFound = errors.New("api: thread not found")
+	ErrThreadIdBlank  = errors.New("api: thread id blank")
 )
 
 // Thread will provide a way to relate messages with users associated with a

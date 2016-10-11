@@ -19,6 +19,8 @@ var BODY = "This is a test message."
 
 var message = &Message{Id: ID, Body: BODY}
 
+var thread = &Thread{Id: ID, UserIds: []string{ID, ID2}}
+
 func TestBoltDBOpen(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
@@ -232,6 +234,36 @@ func TestBoltGetAllMessages(t *testing.T) {
 	}
 	if len(messages) == 0 {
 		t.Errorf("GetAllMessages returned messages slice of length 0")
+	}
+}
+
+func TestBoltSaveThread(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	// Should fail.
+	var nilThread *Thread
+	nilThread = nil
+	err = db.SaveThread(nilThread)
+	if err != ErrThreadNil {
+		t.Errorf("SavingThread on nil thread did not return ErrThreadNil")
+	}
+
+	// Should fail
+	blankIdThread := &Thread{Id: "", UserIds: []string{}}
+	err = db.SaveThread(blankIdThread)
+	if err != ErrThreadIdBlank {
+		t.Errorf("Saving thread with blank id did not return ErrThreadIdBlank")
+	}
+
+	// Should succeed.
+	err = db.SaveThread(thread)
+	if err != nil {
+		t.Errorf(err.Error())
 	}
 }
 
