@@ -218,6 +218,23 @@ func TestBoltSaveMessage(t *testing.T) {
 	}
 }
 
+func TestBoltGetAllMessages(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	messages, err := db.GetAllMessages()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if len(messages) == 0 {
+		t.Errorf("GetAllMessages returned messages slice of length 0")
+	}
+}
+
 // Utils
 func testUsersEqual(u1, u2 *User, t *testing.T) {
 	if u2 == nil {
@@ -232,25 +249,5 @@ func testUsersEqual(u1, u2 *User, t *testing.T) {
 	}
 	if u1.Password != u2.Password {
 		t.Errorf("Password of retrieved user does not match stored user: %s vs %s", u1.Id, u2.Id)
-	}
-}
-
-func testGetUserByUsername(username string, t *testing.T) {
-	user, err := db.GetUserByUsername(username)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if user == nil {
-		t.Errorf("User should not be nil.")
-		return
-	}
-	if user.Id != ID {
-		t.Errorf("Id of retrieved user does not match stored user: %s vs %s", user.Id, ID)
-	}
-	if user.Username != USER {
-		t.Errorf("Username of retrieved user does not match stored user")
-	}
-	if user.Password != PASS {
-		t.Errorf("Password of retrieved user does not match stored user")
 	}
 }
