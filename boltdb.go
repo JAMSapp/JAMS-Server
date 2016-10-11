@@ -406,6 +406,12 @@ func (db BoltDB) GetThread(id string) (*Thread, error) {
 // GetUserThreads returns all stored message threads in the database associated
 // for a given user.
 func (db BoltDB) GetUserThreads(u *User) ([]Thread, error) {
+	if u == nil {
+		return nil, ErrUserNil
+	}
+	if u.Id == "" {
+		return nil, ErrUserIdBlank
+	}
 	threads := make([]Thread, 0)
 	err := db.Conn.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(USERTHREADS))
@@ -415,12 +421,10 @@ func (db BoltDB) GetUserThreads(u *User) ([]Thread, error) {
 			return nil
 		}
 
-		var t Thread
-		err := json.Unmarshal(buf, &t)
+		err := json.Unmarshal(buf, &threads)
 		if err != nil {
 			return err
 		}
-		threads = append(threads, t)
 		return nil
 	})
 
