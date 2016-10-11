@@ -29,6 +29,6 @@ func NewMessage(body string) *Message {
 
 // Save will store the message in the database and will return an error in case
 // of DB failure.
-func (m *Message) Save() error {
-	return db.SaveMessage(m)
+func (m *Message) SaveToThread(t *Thread) error {
+	return db.SaveMessage(m, t)
 }
