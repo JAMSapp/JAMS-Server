@@ -289,6 +289,27 @@ func TestBoltGetAllThreads(t *testing.T) {
 	}
 }
 
+func TestBoltGetThread(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	th, err := db.GetThread(ID)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if th.Id != ID {
+		t.Errorf("Id of retrieved thread does not match stored thread: %s vs %s", th.Id, ID)
+	}
+	// Should have 2 associated with this thread
+	if len(th.UserIds) != 2 {
+		t.Errorf("Number of UserIds for retrieved thread does not match stored thread: %d vs %d", len(th.UserIds), 2)
+	}
+}
+
 // Utils
 func testUsersEqual(u1, u2 *User, t *testing.T) {
 	if u2 == nil {
