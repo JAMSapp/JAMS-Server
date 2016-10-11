@@ -310,6 +310,42 @@ func TestBoltGetThread(t *testing.T) {
 	}
 }
 
+func TestBoltGetUserThreads(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	var nilUser *User
+	nilUser = nil
+	threads, err := db.GetUserThreads(nilUser)
+	if err != ErrUserNil {
+		t.Errorf("GetUserThreads on nil user did not return ErrUserNil")
+	}
+	if threads != nil {
+		t.Errorf("GetUserThreads on nil user did not return nil threads slice")
+	}
+
+	blankIdUser := &User{Id: "", Username: "asdf", Password: "asdf"}
+	threads, err = db.GetUserThreads(blankIdUser)
+	if err != ErrUserIdBlank {
+		t.Errorf("GetUserThreads on user with blank id did not return ErrUserIdBlank")
+	}
+	if threads != nil {
+		t.Errorf("GetUserThreads on nil user did not return nil threads slice")
+	}
+
+	threads, err = db.GetUserThreads(user)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if len(threads) == 0 {
+		t.Errorf("GetUserThreads on user returned threads slice of len 0")
+	}
+}
+
 // Utils
 func testUsersEqual(u1, u2 *User, t *testing.T) {
 	if u2 == nil {
