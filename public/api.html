@@ -37,7 +37,11 @@ GET - /api/user/{id}
         
 DELETE - /api/user/{id}
     Deletes the user resource.
-    Should return 204 for deletion, 404 if not found, or 5** for server error
+    Should return 204 for deletion, 404 if not found, or 5** for server error.
+    
+GET - /api/user/{id}/thread
+    Returns all message threads for the user.
+    Should return 200 with data, 404 for missing user, or 5** for server error. Will return 200 even if no threads.
 
 
 Messages
