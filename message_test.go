@@ -27,11 +27,12 @@ func TestNewMessage(t *testing.T) {
 	if m.Body != MBODY {
 		t.Errorf("message body does not match: %s vs %s", MBODY, m.Body)
 	}
-
-	// Save the message to the database.
-	err = m.Save()
-	if err != nil {
-		t.Errorf("Error when saving message: %s", err.Error())
-	}
+	/*
+		// Save the message to the database.
+		err = m.SaveToThread()
+		if err != nil {
+			t.Errorf("Error when saving message: %s", err.Error())
+		}
+	*/
 
 }

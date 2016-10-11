@@ -218,7 +218,7 @@ func (db BoltDB) DeleteUser(user *User) error {
 
 // SaveMessage takes a message object as saves it in the database, rewriting any
 // previous message stored with the same Id.
-func (db BoltDB) SaveMessage(mes *Message) error {
+func (db BoltDB) SaveMessage(mes *Message, t *Thread) error {
 	if mes == nil {
 		return ErrMsgNil
 	}
@@ -229,14 +229,37 @@ func (db BoltDB) SaveMessage(mes *Message) error {
 		return ErrMsgBodyBlank
 	}
 
+	if t == nil {
+		return ErrThreadNil
+	}
+	if t.Id == "" {
+		return ErrThreadIdBlank
+	}
+
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(MESSAGES))
-		buf, err := json.Marshal(mes)
+
+		// Get current messages
+		buf := b.Get([]byte(t.Id))
+		messages := make([]Message, 0)
+		var err error
+		if len(buf) > 0 {
+			err = json.Unmarshal(buf, &messages)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Append newest message
+		messages = append(messages, *mes)
+
+		// Store new message array
+		buf, err = json.Marshal(messages)
 		if err != nil {
 			return err
 		}
 
-		return b.Put([]byte(mes.Id), buf)
+		return b.Put([]byte(t.Id), buf)
 	})
 	return err
 }
@@ -253,12 +276,12 @@ func (db BoltDB) GetAllMessages() ([]Message, error) {
 				return nil
 			}
 
-			var mes Message
-			err := json.Unmarshal(v, &mes)
+			m := make([]Message, 0)
+			err := json.Unmarshal(v, &m)
 			if err != nil {
 				return err
 			}
-			messages = append(messages, mes)
+			messages = append(messages, m...)
 			return nil
 		})
 	})
@@ -269,12 +292,35 @@ func (db BoltDB) GetAllMessages() ([]Message, error) {
 	return messages, nil
 }
 
+// GetThreadMessages returns all stored messages for a given thread.
+func (db BoltDB) GetThreadMessages(t *Thread) ([]Message, error) {
+	if t == nil {
+		return nil, ErrThreadNil
+	}
+	if t.Id == "" {
+		return nil, ErrThreadIdBlank
+	}
+
+	messages := make([]Message, 0)
+	err := db.Conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(MESSAGES))
+
+		buf := b.Get([]byte(t.Id))
+		err := json.Unmarshal(buf, &messages)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+
+	return messages, err
+}
+
 // SaveThread saves a message thread to the database based on Id.
 func (db BoltDB) SaveThread(t *Thread) error {
 	if t == nil {
 		return ErrThreadNil
 	}
-
 	if t.Id == "" {
 		return ErrThreadIdBlank
 	}
@@ -326,32 +372,6 @@ func (db BoltDB) SaveThread(t *Thread) error {
 		return nil
 	})
 	return err
-}
-
-// GetThreadMessages returns all stored messages for a given message thread.
-func (db BoltDB) GetThreadMessages(t *Thread) ([]Message, error) {
-	messages := make([]Message, 0)
-	err := db.Conn.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(MESSAGES))
-
-		buf := b.Get([]byte(t.Id))
-		if len(buf) == 0 {
-			return nil
-		}
-
-		var mes Message
-		err := json.Unmarshal(buf, &mes)
-		if err != nil {
-			return err
-		}
-		messages = append(messages, mes)
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	return messages, nil
 }
 
 // GetAllThreads returns all stored message threads in the database.
@@ -438,6 +458,9 @@ func (db BoltDB) GetUserThreads(u *User) ([]Thread, error) {
 func (db BoltDB) DeleteThread(t *Thread) error {
 	if t == nil {
 		return ErrThreadNil
+	}
+	if t.Id == "" {
+		return ErrThreadIdBlank
 	}
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {

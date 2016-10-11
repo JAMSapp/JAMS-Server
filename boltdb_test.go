@@ -187,61 +187,6 @@ func TestBoltDeleteUser(t *testing.T) {
 	}
 }
 
-func TestBoltSaveMessage(t *testing.T) {
-	db, err := BoltDBOpen(DBFILE)
-	if err != nil {
-		t.Errorf(err.Error())
-		return
-	}
-	defer db.Conn.Close()
-
-	// Should fail
-	var nilMes *Message
-	nilMes = nil
-	err = db.SaveMessage(nilMes)
-	if err != ErrMsgNil {
-		t.Errorf("SaveMessage with nil object did not return ErrMsgNil")
-	}
-
-	// Should succeed
-	err = db.SaveMessage(message)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-
-	// Should fail
-	mes := &Message{Id: "", Body: BODY}
-	err = db.SaveMessage(mes)
-	if err != ErrMsgIdBlank {
-		t.Errorf("SaveMessage with blank Id did not return ErrMsgIdBlank")
-	}
-
-	// Should fail
-	mes = &Message{Id: ID, Body: ""}
-	err = db.SaveMessage(mes)
-	if err != ErrMsgBodyBlank {
-		t.Errorf("SaveMessage with blank Body did not return ErrMsgBodyBlank")
-	}
-}
-
-func TestBoltGetAllMessages(t *testing.T) {
-	db, err := BoltDBOpen(DBFILE)
-	if err != nil {
-		t.Errorf(err.Error())
-		return
-	}
-	defer db.Conn.Close()
-
-	messages, err := db.GetAllMessages()
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	// Should always have a message at this point.
-	if len(messages) == 0 {
-		t.Errorf("GetAllMessages returned messages slice of length 0")
-	}
-}
-
 func TestBoltSaveThread(t *testing.T) {
 	db, err := BoltDBOpen(DBFILE)
 	if err != nil {
@@ -269,6 +214,79 @@ func TestBoltSaveThread(t *testing.T) {
 	err = db.SaveThread(thread)
 	if err != nil {
 		t.Errorf(err.Error())
+	}
+}
+
+func TestBoltSaveMessage(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	// Should fail
+	var nilMes *Message
+	nilMes = nil
+	err = db.SaveMessage(nilMes, thread)
+	if err != ErrMsgNil {
+		t.Errorf("SaveMessage with nil object did not return ErrMsgNil")
+	}
+
+	// Should succeed
+	err = db.SaveMessage(message, thread)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	// Should fail
+	mes := &Message{Id: "", Body: BODY}
+	err = db.SaveMessage(mes, thread)
+	if err != ErrMsgIdBlank {
+		t.Errorf("SaveMessage with blank Id did not return ErrMsgIdBlank")
+	}
+
+	// Should fail
+	mes = &Message{Id: ID, Body: ""}
+	err = db.SaveMessage(mes, thread)
+	if err != ErrMsgBodyBlank {
+		t.Errorf("SaveMessage with blank Body did not return ErrMsgBodyBlank")
+	}
+}
+
+func TestBoltGetAllMessages(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	messages, err := db.GetAllMessages()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	// Should always have a message at this point.
+	if len(messages) == 0 {
+		t.Errorf("GetAllMessages returned messages slice of length 0")
+	}
+}
+
+func TestBoltGetThreadMessages(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	messages, err := db.GetThreadMessages(thread)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	// Should always have a message at this point.
+	if len(messages) == 0 {
+		t.Errorf("GetThreadMessages returned messages slice of length 0")
 	}
 }
 
@@ -343,6 +361,46 @@ func TestBoltGetUserThreads(t *testing.T) {
 	}
 	if len(threads) == 0 {
 		t.Errorf("GetUserThreads on user returned threads slice of len 0")
+	}
+}
+
+func TestBoltDeleteThread(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	var nilThread *Thread
+	nilThread = nil
+	err = db.DeleteThread(nilThread)
+	if err != ErrThreadNil {
+		t.Errorf("DeleteThread on nil thread did not return ErrThreadNil")
+	}
+
+	blankIdThread := &Thread{Id: "", UserIds: []string{}}
+	err = db.DeleteThread(blankIdThread)
+	if err != ErrThreadIdBlank {
+		t.Errorf("DeleteThread on blank id thread did not return ErrThreadIdBlank")
+	}
+
+	err = db.DeleteThread(thread)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+
+	th, err := db.GetThread(ID)
+	if err != ErrThreadNotFound {
+		t.Errorf("GetThread on deleted thread did not return ErrThreadNotFound")
+	}
+	if th != nil {
+		t.Errorf("GetThread on deleted thread did not return nil thread.")
+	}
+
+	threads, _ := db.GetUserThreads(user)
+	if len(threads) != 0 {
+		t.Errorf("GetUserThreads on deleted thread did not return empty thread slice.")
 	}
 }
 

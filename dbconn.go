@@ -20,7 +20,7 @@ type DBConn interface {
 	DeleteUser(u *User) error                         // Delete the user object.
 
 	// Message functions
-	SaveMessage(m *Message) error                   // Save a message object
+	SaveMessage(m *Message, t *Thread) error        // Save a message object
 	GetThreadMessages(t *Thread) ([]Message, error) // Get all messages in a thread
 	GetAllMessages() ([]Message, error)             // Get all messages.
 
