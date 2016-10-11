@@ -241,32 +241,6 @@ func (db BoltDB) SaveMessage(mes *Message) error {
 	return err
 }
 
-// GetThreadMessages returns all stored messages for a given message thread.
-func (db BoltDB) GetThreadMessages(t *Thread) ([]Message, error) {
-	messages := make([]Message, 0)
-	err := db.Conn.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(MESSAGES))
-
-		buf := b.Get([]byte(t.Id))
-		if len(buf) == 0 {
-			return nil
-		}
-
-		var mes Message
-		err := json.Unmarshal(buf, &mes)
-		if err != nil {
-			return err
-		}
-		messages = append(messages, mes)
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	return messages, nil
-}
-
 // GetAllMessages returns all stored messages in the database. Hopefully one day
 // this will be incredibly huge and a very bad function to ever call.
 func (db BoltDB) GetAllMessages() ([]Message, error) {
@@ -298,7 +272,11 @@ func (db BoltDB) GetAllMessages() ([]Message, error) {
 // SaveThread saves a message thread to the database based on Id.
 func (db BoltDB) SaveThread(t *Thread) error {
 	if t == nil {
-		return ErrThreadObjectNil
+		return ErrThreadNil
+	}
+
+	if t.Id == "" {
+		return ErrThreadIdBlank
 	}
 
 	err := db.Conn.Update(func(tx *bolt.Tx) error {
@@ -350,66 +328,30 @@ func (db BoltDB) SaveThread(t *Thread) error {
 	return err
 }
 
-// DeleteThread deletes a message thread from the database based on Id.
-func (db BoltDB) DeleteThread(t *Thread) error {
-	if t == nil {
-		return ErrThreadObjectNil
-	}
+// GetThreadMessages returns all stored messages for a given message thread.
+func (db BoltDB) GetThreadMessages(t *Thread) ([]Message, error) {
+	messages := make([]Message, 0)
+	err := db.Conn.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(MESSAGES))
 
-	err := db.Conn.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(THREADS))
+		buf := b.Get([]byte(t.Id))
+		if len(buf) == 0 {
+			return nil
+		}
 
-		err := b.Delete([]byte(t.Id))
+		var mes Message
+		err := json.Unmarshal(buf, &mes)
 		if err != nil {
 			return err
 		}
-		// For each user for this thread, add this thread to their list of
-		// threads.
-		for _, u := range t.UserIds {
-			// Get the array of threads.
-			ut := tx.Bucket([]byte(USERTHREADS))
-			threads_buf := ut.Get([]byte(u))
-
-			threads := make([]Thread, 0)
-			if len(threads_buf) != 0 {
-				// Unmarshal the array
-				err = json.Unmarshal(threads_buf, &threads)
-				if err != nil {
-					return err
-				}
-			}
-
-			// Go through the threads and find the matching one
-			delete := -1
-			for i, thread := range threads {
-				if t.Id == thread.Id {
-					delete = i
-				}
-			}
-
-			// If one matched, remove from the slice.
-			if delete != -1 {
-				// Take all the ones up to the one to be deleted, add the rest
-				// after the one to be deleted.
-				threads = append(threads[:delete], threads[delete+1:]...)
-			}
-
-			// Marshal the array
-			buf, err := json.Marshal(threads)
-			if err != nil {
-				return err
-			}
-
-			// Store the new buffer.
-			err = ut.Put([]byte(u), buf)
-			if err != nil {
-				return err
-			}
-		}
-
+		messages = append(messages, mes)
 		return nil
 	})
-	return err
+
+	if err != nil {
+		return nil, err
+	}
+	return messages, nil
 }
 
 // GetAllThreads returns all stored message threads in the database.
@@ -486,4 +428,66 @@ func (db BoltDB) GetUserThreads(u *User) ([]Thread, error) {
 		return nil, err
 	}
 	return threads, nil
+}
+
+// DeleteThread deletes a message thread from the database based on Id.
+func (db BoltDB) DeleteThread(t *Thread) error {
+	if t == nil {
+		return ErrThreadNil
+	}
+
+	err := db.Conn.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(THREADS))
+
+		err := b.Delete([]byte(t.Id))
+		if err != nil {
+			return err
+		}
+		// For each user for this thread, add this thread to their list of
+		// threads.
+		for _, u := range t.UserIds {
+			// Get the array of threads.
+			ut := tx.Bucket([]byte(USERTHREADS))
+			threads_buf := ut.Get([]byte(u))
+
+			threads := make([]Thread, 0)
+			if len(threads_buf) != 0 {
+				// Unmarshal the array
+				err = json.Unmarshal(threads_buf, &threads)
+				if err != nil {
+					return err
+				}
+			}
+
+			// Go through the threads and find the matching one
+			delete := -1
+			for i, thread := range threads {
+				if t.Id == thread.Id {
+					delete = i
+				}
+			}
+
+			// If one matched, remove from the slice.
+			if delete != -1 {
+				// Take all the ones up to the one to be deleted, add the rest
+				// after the one to be deleted.
+				threads = append(threads[:delete], threads[delete+1:]...)
+			}
+
+			// Marshal the array
+			buf, err := json.Marshal(threads)
+			if err != nil {
+				return err
+			}
+
+			// Store the new buffer.
+			err = ut.Put([]byte(u), buf)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	return err
 }
