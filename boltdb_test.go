@@ -195,6 +195,7 @@ func TestBoltSaveMessage(t *testing.T) {
 	}
 	defer db.Conn.Close()
 
+	// Should fail
 	var nilMes *Message
 	nilMes = nil
 	err = db.SaveMessage(nilMes)
@@ -202,17 +203,20 @@ func TestBoltSaveMessage(t *testing.T) {
 		t.Errorf("SaveMessage with nil object did not return ErrMsgNil")
 	}
 
+	// Should succeed
 	err = db.SaveMessage(message)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
+	// Should fail
 	mes := &Message{Id: "", Body: BODY}
 	err = db.SaveMessage(mes)
 	if err != ErrMsgIdBlank {
 		t.Errorf("SaveMessage with blank Id did not return ErrMsgIdBlank")
 	}
 
+	// Should fail
 	mes = &Message{Id: ID, Body: ""}
 	err = db.SaveMessage(mes)
 	if err != ErrMsgBodyBlank {
@@ -232,6 +236,7 @@ func TestBoltGetAllMessages(t *testing.T) {
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	// Should always have a message at this point.
 	if len(messages) == 0 {
 		t.Errorf("GetAllMessages returned messages slice of length 0")
 	}
@@ -264,6 +269,23 @@ func TestBoltSaveThread(t *testing.T) {
 	err = db.SaveThread(thread)
 	if err != nil {
 		t.Errorf(err.Error())
+	}
+}
+
+func TestBoltGetAllThreads(t *testing.T) {
+	db, err := BoltDBOpen(DBFILE)
+	if err != nil {
+		t.Errorf(err.Error())
+		return
+	}
+	defer db.Conn.Close()
+
+	threads, err := db.GetAllThreads()
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if len(threads) == 0 {
+		t.Errorf("Getting all threads returned thread slice of length 0")
 	}
 }
 
