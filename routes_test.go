@@ -104,31 +104,31 @@ func testUser(t *testing.T) {
 	}
 
 	// Create a new thread between the two users
-	res, r = Post("/api/user/"+id.String()+"/thread", "{\"userIds\":[\""+user.Id+"\"]}")
+	res, r = Post("/api/user/"+id.String()+"/thread", "{\"userIds\":[\""+user.Id+"\"]}", t)
 	if r != http.StatusCreated {
 		t.Errorf("POST /api/user/%s/thread did not return %d, instead returned %d\n", id.String(), http.StatusCreated, r)
 	}
 
 	// Get all threads for the user.
-	r = Get("/api/user/" + id.String() + "/thread")
+	r = Get("/api/user/"+id.String()+"/thread", t)
 	if r != http.StatusOK {
 		t.Errorf("GET /api/user/%s/thread did not return %d, instead returned %d\n", id.String(), http.StatusOK, r)
 	}
 
 	var thread Thread
-	err := json.Unmarshal(res, &thread)
+	err = json.Unmarshal(res, &thread)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 
 	// Create new message in the new thread.
-	res, r = Post("/api/thread/"+thread.Id, "{\"body\":\"This is a test message.\"}")
+	res, r = Post("/api/thread/"+thread.Id, "{\"body\":\"This is a test message.\"}", t)
 	if r != http.StatusCreated {
 		t.Errorf("POST /api/thread/%s did not return %d, instead returned %d\n", thread.Id, http.StatusCreated, r)
 	}
 
 	// Get all messages for the thread
-	r = Get("/api/thread/" + thread.Id)
+	r = Get("/api/thread/"+thread.Id, t)
 	if r != http.StatusOK {
 		t.Errorf("GET /api/thread/%s did not return %d, instead returned %d\n", thread.Id, http.StatusOK, r)
 	}
@@ -214,14 +214,15 @@ func Get(path string, t *testing.T) int {
 	}
 	defer res.Body.Close()
 
-	buf, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf(err.Error())
-		return 0
-	}
+	/*
+		buf, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf(err.Error())
+			return 0
+		}
+	*/
 
 	fmt.Printf("GET %s: %d\n", path, res.StatusCode)
-	fmt.Printf("Resp: %s\n", string(buf))
 	return res.StatusCode
 }
 
@@ -243,7 +244,6 @@ func Post(path, body string, t *testing.T) ([]byte, int) {
 	}
 
 	fmt.Printf("POST %s: %d\n", path, res.StatusCode)
-	fmt.Printf("Resp: %s\n", string(resbody))
 	return resbody, res.StatusCode
 }
 
@@ -266,14 +266,15 @@ func Put(path, body string, t *testing.T) int {
 	}
 	defer res.Body.Close()
 
-	buf, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		t.Errorf(err.Error())
-		return 0
-	}
+	/*
+		buf, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Errorf(err.Error())
+			return 0
+		}
+	*/
 
 	fmt.Printf("PUT %s: %d\n", path, res.StatusCode)
-	fmt.Printf("Resp: %s\n", string(buf))
 	return res.StatusCode
 }
 
