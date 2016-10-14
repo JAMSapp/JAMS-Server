@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 )
 
@@ -12,6 +11,7 @@ var (
 	ErrMessageNotFound = errors.New("api: message not found")
 )
 
+/*
 func apiThreadMessagePostHandler(w http.ResponseWriter, r *http.Request) {
 	content := r.Header.Get("Content-Type")
 	if content != "application/json" {
@@ -37,11 +37,11 @@ func apiThreadMessagePostHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	*/
 
 	w.WriteHeader(http.StatusCreated)
 	return
 }
+*/
 func apiMessageGetHandler(w http.ResponseWriter, r *http.Request) {
 	messages, err := db.GetAllMessages()
 	if err != nil {

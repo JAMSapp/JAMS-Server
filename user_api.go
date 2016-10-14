@@ -206,6 +206,85 @@ func apiUserDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+func apiUserThreadGetHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	user, err := db.GetUserById(id)
+	if err != nil {
+		if err == ErrUserNotFound {
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	threads, err := db.GetUserThreads(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	buf, err := json.Marshal(threads)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Return the user as a JSON object and 200 OK.
+	w.Header().Add("Content-Type", "application/json")
+	fmt.Fprintf(w, "%s", string(buf))
+}
+
+func apiUserThreadPostHandler(w http.ResponseWriter, r *http.Request) {
+	// Require JSON content type.
+	content := r.Header.Get("Content-Type")
+	if content != "application/json" {
+		http.Error(w, ErrUnsupportedMediaType.Error(), http.StatusUnsupportedMediaType)
+		return
+	}
+
+	// Read the request body.
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Create a temp User to unmarshal
+	var temp Thread
+	err = json.Unmarshal(body, &temp)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	vars := mux.Vars(r)
+	user_id := vars["id"]
+	temp.UserIds = append(temp.UserIds, user_id)
+
+	thread := NewThread(temp.UserIds)
+
+	// Must save for persistence.
+	err = db.SaveThread(thread)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Marshal newly created user into JSON for response
+	buf, err := json.Marshal(thread)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Make sure we return 201 Created
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "%s", string(buf))
+	return
+}
+
 func apiUserHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 	return

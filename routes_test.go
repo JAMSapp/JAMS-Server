@@ -118,11 +118,11 @@ func testUser(t *testing.T) {
 	var thread Thread
 	err = json.Unmarshal(res, &thread)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Errorf("Unmarshalling Thread: %s", err.Error())
 	}
 
 	// Create new message in the new thread.
-	res, r = Post("/api/thread/"+thread.Id, "{\"body\":\"This is a test message.\"}", t)
+	res, r = Post("/api/thread/"+thread.Id+"/message", "{\"body\":\"This is a test message.\"}", t)
 	if r != http.StatusCreated {
 		t.Errorf("POST /api/thread/%s did not return %d, instead returned %d\n", thread.Id, http.StatusCreated, r)
 	}
