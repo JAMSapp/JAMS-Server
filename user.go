@@ -9,7 +9,7 @@ var (
 	ErrUserNotFound          = errors.New("api: user not found")
 	ErrUsernameAlreadyExists = errors.New("api: username already exists")
 	ErrUsernameBlank         = errors.New("api: username cannot be empty")
-	ErrPasswordBlank         = errors.New("api: username cannot be empty")
+	ErrPasswordBlank         = errors.New("api: password cannot be empty")
 	ErrUserIdBlank           = errors.New("api: Id cannot be empty")
 	ErrUserNil               = errors.New("api: user nil")
 )
